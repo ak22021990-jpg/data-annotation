@@ -104,13 +104,51 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated during roadmap creation) | — | Pending |
+| SETUP-01 | Phase 1 | Pending |
+| SETUP-02 | Phase 1 | Pending |
+| SETUP-03 | Phase 1 | Pending |
+| SETUP-04 | Phase 1 | Pending |
+| CONTENT-01 | Phase 1 | Pending |
+| CONTENT-02 | Phase 1 | Pending |
+| CONTENT-03 | Phase 1 | Pending |
+| SCORE-01 | Phase 2 | Pending |
+| SCORE-02 | Phase 2 | Pending |
+| SCORE-03 | Phase 2 | Pending |
+| SCORE-04 | Phase 2 | Pending |
+| SCORE-05 | Phase 2 | Pending |
+| FLOW-01 | Phase 3 | Pending |
+| FLOW-02 | Phase 3 | Pending |
+| FLOW-03 | Phase 3 | Pending |
+| FLOW-04 | Phase 3 | Pending |
+| FLOW-05 | Phase 3 | Pending |
+| FLOW-06 | Phase 3 | Pending |
+| FLOW-07 | Phase 3 | Pending |
+| FLOW-08 | Phase 3 | Pending |
+| FLOW-09 | Phase 3 | Pending |
+| TIMER-01 | Phase 3 | Pending |
+| TIMER-02 | Phase 3 | Pending |
+| TIMER-03 | Phase 3 | Pending |
+| RESULT-01 | Phase 4 | Pending |
+| RESULT-02 | Phase 4 | Pending |
+| RESULT-03 | Phase 4 | Pending |
+| LEAD-01 | Phase 4 | Pending |
+| BADGE-01 | Phase 4 | Pending |
+| BADGE-02 | Phase 4 | Pending |
+| DESIGN-01 | Phase 4 | Pending |
+| DESIGN-02 | Phase 4 | Pending |
+| REV-01 | Phase 5 | Pending |
+| REV-02 | Phase 5 | Pending |
+| PROCTOR-01 | Phase 5 | Pending |
+| PROCTOR-02 | Phase 5 | Pending |
+| QA-01 | Phase 6 | Pending |
+| QA-02 | Phase 6 | Pending |
+| QA-03 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 33 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 33 ⚠️
+- Mapped to phases: 33
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after initial definition*
+*Last updated: 2026-05-22 after roadmap creation*
