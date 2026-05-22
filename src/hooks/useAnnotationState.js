@@ -1,0 +1,147 @@
+import { useState, useCallback } from 'react';
+import { useScoring } from './useScoring.js';
+import { useProctoring } from './useProctoring.js';
+
+export const SCREENS = {
+  REGISTER: 'REGISTER',
+  TUTORIAL: 'TUTORIAL',
+  ANNOTATE: 'ANNOTATE',
+  FEEDBACK: 'FEEDBACK',
+  RESULTS: 'RESULTS',
+  REVIEWER: 'REVIEWER'
+};
+
+/**
+ * Hook to manage the state machine and progression of the annotation test.
+ *
+ * @param {Array} scenarios - All scenarios to annotate
+ * @param {Object} options - Callbacks (e.g. onFinished when results are ready)
+ */
+export function useAnnotationState(scenarios, options = {}) {
+  const { onFinished } = options;
+  const [screen, setScreen] = useState(SCREENS.REGISTER);
+  const [candidate, setCandidate] = useState({ name: '', email: '' });
+  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [answersList, setAnswersList] = useState(() => Array(scenarios.length).fill(null));
+
+  // State for the currently visible scenario's form before submission
+  const [currentSeverity, setCurrentSeverity] = useState(null);
+  const [currentSignals, setCurrentSignals] = useState([]);
+  const [currentAction, setCurrentAction] = useState(null);
+
+  const scoring = useScoring(scenarios.length);
+  const { violations, startTracking, stopTracking, resetViolations } = useProctoring();
+
+  const register = useCallback((name, email) => {
+    setCandidate({ name, email });
+    setScreen(SCREENS.TUTORIAL);
+  }, []);
+
+  const startTest = useCallback(() => {
+    setScenarioIndex(0);
+    setCurrentSeverity(null);
+    setCurrentSignals([]);
+    setCurrentAction(null);
+    setScreen(SCREENS.ANNOTATE);
+    startTracking();
+  }, [startTracking]);
+
+  const submitAnnotation = useCallback((autoSubmittedAnswers = null) => {
+    // Determine target answers (either explicitly provided or from current state)
+    const severity = autoSubmittedAnswers ? autoSubmittedAnswers.severity : currentSeverity;
+    const signals = autoSubmittedAnswers ? autoSubmittedAnswers.signals : currentSignals;
+    const action = autoSubmittedAnswers ? autoSubmittedAnswers.action : currentAction;
+
+    const answers = { severity, signals, action };
+
+    // Record the score
+    const record = scoring.scoreScenario(scenarioIndex, scenarios[scenarioIndex], answers);
+
+    // Save the answers
+    let updatedAnswersList;
+    setAnswersList(prev => {
+      const next = [...prev];
+      next[scenarioIndex] = answers;
+      updatedAnswersList = next;
+      return next;
+    });
+
+    setScreen(SCREENS.FEEDBACK);
+
+    return { answers, record, updatedAnswersList };
+  }, [scenarioIndex, currentSeverity, currentSignals, currentAction, scenarios, scoring]);
+
+  const nextScenario = useCallback(() => {
+    if (scenarioIndex < scenarios.length - 1) {
+      setScenarioIndex(prev => prev + 1);
+      setCurrentSeverity(null);
+      setCurrentSignals([]);
+      setCurrentAction(null);
+      setScreen(SCREENS.ANNOTATE);
+    } else {
+      stopTracking();
+      setScreen(SCREENS.RESULTS);
+      if (onFinished) {
+        onFinished({
+          candidate,
+          answers: answersList,
+          scores: scoring.scores,
+          totalPoints: scoring.totalPoints,
+          displayScore: scoring.displayScore,
+          band: scoring.band,
+          violations
+        });
+      }
+    }
+  }, [scenarioIndex, scenarios.length, candidate, answersList, scoring, onFinished, stopTracking, violations]);
+
+  const toggleSignal = useCallback((signalId) => {
+    setCurrentSignals(prev => {
+      if (signalId === 'none-detected') {
+        // 'none-detected' is mutually exclusive with any actual abuse signals
+        return prev.includes('none-detected') ? [] : ['none-detected'];
+      } else {
+        const next = prev.filter(s => s !== 'none-detected');
+        if (next.includes(signalId)) {
+          return next.filter(s => s !== signalId);
+        } else {
+          return [...next, signalId];
+        }
+      }
+    });
+  }, []);
+
+  const resetAll = useCallback(() => {
+    setScreen(SCREENS.REGISTER);
+    setCandidate({ name: '', email: '' });
+    setScenarioIndex(0);
+    setAnswersList(Array(scenarios.length).fill(null));
+    setCurrentSeverity(null);
+    setCurrentSignals([]);
+    setCurrentAction(null);
+    scoring.resetScores();
+    resetViolations();
+  }, [scenarios.length, scoring, resetViolations]);
+
+  return {
+    screen,
+    setScreen,
+    candidate,
+    scenarioIndex,
+    currentSeverity,
+    currentSignals,
+    currentAction,
+    setCurrentSeverity,
+    setCurrentAction,
+    toggleSignal,
+    answersList,
+    register,
+    startTest,
+    submitAnnotation,
+    nextScenario,
+    resetAll,
+    violations,
+    ...scoring
+  };
+}
+

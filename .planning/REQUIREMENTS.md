@@ -104,13 +104,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETUP-01 | Phase 1 | Pending |
-| SETUP-02 | Phase 1 | Pending |
-| SETUP-03 | Phase 1 | Pending |
-| SETUP-04 | Phase 1 | Pending |
-| CONTENT-01 | Phase 1 | Pending |
-| CONTENT-02 | Phase 1 | Pending |
-| CONTENT-03 | Phase 1 | Pending |
+| SETUP-01 | Phase 1 | Done |
+| SETUP-02 | Phase 1 | Done |
+| SETUP-03 | Phase 1 | Done |
+| SETUP-04 | Phase 1 | Done |
+| CONTENT-01 | Phase 1 | Done |
+| CONTENT-02 | Phase 1 | Done |
+| CONTENT-03 | Phase 1 | Done |
 | SCORE-01 | Phase 2 | Pending |
 | SCORE-02 | Phase 2 | Pending |
 | SCORE-03 | Phase 2 | Pending |
