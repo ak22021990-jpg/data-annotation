@@ -93,9 +93,9 @@ function AnnotateHeader({ scenarioIndex, total, durationSeconds, onExpire }) {
  * App - Main router for the Email Abuse Annotation Test.
  */
 function App() {
-  const handleFinished = useCallback(({ candidate, answers, scores, totalPoints, displayScore, band, violations }) => {
+  const handleFinished = useCallback(({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList }) => {
     submitResults({
-      candidate, answers, scores, totalPoints, displayScore, band, violations
+      candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList
     });
   }, []);
 

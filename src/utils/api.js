@@ -1,9 +1,5 @@
-// Google Apps Script Web App URL (empty by default, can be set as needed)
-export const BACKEND_URL = '';
+import { GAS_URL } from '../config/config.js';
 
-/**
- * Saves candidate results to localStorage as a safeguard.
- */
 function safeguardSubmission(payload) {
   try {
     const key = `abuse_test_submission_${payload.email}`;
@@ -14,9 +10,6 @@ function safeguardSubmission(payload) {
   }
 }
 
-/**
- * Mock local leaderboard handler.
- */
 function getLocalLeaderboard() {
   try {
     const data = localStorage.getItem('abuse_test_leaderboard');
@@ -43,18 +36,98 @@ function saveLocalLeaderboard(entry) {
 }
 
 /**
- * Submits the completed test results.
- *
- * @param {Object} candidate - { name, email }
- * @param {Array} answers - Array of 10 answer objects
- * @param {Array} scores - Array of 10 score records
- * @param {number} totalPoints - Raw points total (out of 30)
- * @param {number} displayScore - Rounded percentage
- * @param {string} band - 'Advanced', 'Proficient', 'Foundation'
- * @param {number} violations - Proctoring tab-switch violation count
- * @returns {Promise<Object>} Response confirmation
+ * Registers the candidate at the start of the assessment.
+ * Creates an "In Progress" row in the Summary sheet.
  */
-export async function submitResults({ candidate, answers, scores, totalPoints, displayScore, band, violations }) {
+export async function registerCandidate(name, email) {
+  if (!GAS_URL) return { success: true, backend: 'LocalOnly' };
+
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'register', name, email }),
+    });
+    return { success: true, backend: 'GAS' };
+  } catch (error) {
+    console.error('Register failed:', error);
+    return { success: true, backend: 'LocalOnly' };
+  }
+}
+
+/**
+ * Checks if an email has already been used for the assessment.
+ */
+export async function checkEmail(email) {
+  if (!GAS_URL) return { exists: false };
+
+  try {
+    const response = await fetch(`${GAS_URL}?checkEmail=${encodeURIComponent(email)}`);
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.error('checkEmail failed:', error);
+  }
+  return { exists: false };
+}
+
+/**
+ * Builds per-scenario payload from answers, scores, and scenario definitions.
+ */
+function buildPerScenarioData(scenarios, answersList, scores) {
+  return scenarios.map((sc, idx) => {
+    const ans = answersList[idx] || {};
+    const score = scores[idx] || {};
+    return {
+      scenarioId: sc.id,
+      scenarioTitle: sc.title || `Scenario ${sc.id}`,
+      selectedSeverity: ans.severity || '',
+      correctSeverity: (sc.scoring.severity.correct || []).join(', '),
+      severityPoints: score.severityPoints || 0,
+      selectedSignals: (ans.signals || []).join(', '),
+      requiredSignals: (sc.scoring.signals.required || []).join(', '),
+      signalPoints: score.signalPoints || 0,
+      selectedAction: ans.action || '',
+      correctAction: (sc.scoring.action.correct || []).join(', '),
+      actionPoints: score.actionPoints || 0,
+      totalPoints: score.points || 0,
+    };
+  });
+}
+
+/**
+ * Submits the completed test results and triggers email notification to reviewers.
+ *
+ * @param {Object} params
+ * @param {Object} params.candidate - { name, email }
+ * @param {Array} params.answers - Array of 10 answer objects
+ * @param {Array} params.scores - Array of 10 score records
+ * @param {number} params.totalPoints - Raw points total (out of 30)
+ * @param {number} params.displayScore - Rounded percentage
+ * @param {string} params.band - 'Advanced', 'Proficient', 'Foundation'
+ * @param {number} params.violations - Proctoring violation count
+ * @param {Array} params.scenarios - Scenario definitions (for building per-scenario data)
+ * @returns {Promise<Object>}
+ */
+export async function submitResults({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios }) {
+  let sevCorrect = 0, actCorrect = 0, sigPoints = 0;
+  scenarios.forEach((sc, idx) => {
+    const ans = answers[idx];
+    if (ans) {
+      if (sc.scoring.severity.correct.includes(ans.severity)) sevCorrect++;
+      if (sc.scoring.action.correct.includes(ans.action)) actCorrect++;
+    }
+    if (scores[idx]) sigPoints += scores[idx].signalPoints || 0;
+  });
+
+  const severityAcc = Math.round((sevCorrect / scenarios.length) * 100);
+  const signalAcc = Math.round((sigPoints / scenarios.length) * 100);
+  const actionAcc = Math.round((actCorrect / scenarios.length) * 100);
+
+  const perScenario = buildPerScenarioData(scenarios, answers, scores);
+
   const payload = {
     timestamp: new Date().toISOString(),
     name: candidate.name,
@@ -63,53 +136,42 @@ export async function submitResults({ candidate, answers, scores, totalPoints, d
     displayScore,
     band,
     violations,
+    severityAcc,
+    signalAcc,
+    actionAcc,
+    finalScore: displayScore,
+    perScenario,
     answers: JSON.stringify(answers),
-    scores: JSON.stringify(scores)
+    scores: JSON.stringify(scores),
   };
 
-  // 1. Write to localStorage safeguard first
   safeguardSubmission(payload);
 
-  // 2. Post to backend if URL configured
-  if (BACKEND_URL) {
+  if (GAS_URL) {
     try {
-      const response = await fetch(BACKEND_URL, {
+      await fetch(GAS_URL, {
         method: 'POST',
-        mode: 'no-cors', // Standard GAS web app POST config
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          action: 'submit',
-          ...payload
-        })
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'submitFinal', ...payload }),
       });
-
-      return { success: true, backend: 'GAS', response };
+      return { success: true, backend: 'GAS' };
     } catch (error) {
-      console.error('GAS backend post failed, using local fallback:', error);
+      console.error('GAS submitFinal failed, using local fallback:', error);
     }
   }
 
-  // 3. Fallback to localStorage leaderboard update
-  saveLocalLeaderboard({
-    name: candidate.name,
-    displayScore,
-    band
-  });
-
+  saveLocalLeaderboard({ name: candidate.name, displayScore, band });
   return { success: true, backend: 'LocalFallback' };
 }
 
 /**
  * Fetches the leaderboard.
- *
- * @returns {Promise<Array>} List of scores
  */
 export async function fetchLeaderboard() {
-  if (BACKEND_URL) {
+  if (GAS_URL) {
     try {
-      const response = await fetch(`${BACKEND_URL}?action=getLeaderboard`);
+      const response = await fetch(`${GAS_URL}?action=getLeaderboard`);
       if (response.ok) {
         return await response.json();
       }
@@ -117,41 +179,33 @@ export async function fetchLeaderboard() {
       console.error('GAS leaderboard fetch failed, using local fallback:', error);
     }
   }
-
   return getLocalLeaderboard();
 }
 
 /**
  * Reviewer helper to fetch all submissions (gated by passcode).
- *
- * @param {string} passcode - The shared reviewer passcode
- * @returns {Promise<Array>} List of all candidates and details
  */
 export async function fetchReviewerResults(passcode) {
-  if (BACKEND_URL) {
-    const response = await fetch(`${BACKEND_URL}?action=getResults&passcode=${encodeURIComponent(passcode)}`);
+  if (GAS_URL) {
+    const response = await fetch(`${GAS_URL}?action=getResults&passcode=${encodeURIComponent(passcode)}`);
     if (!response.ok) {
       throw new Error('Authentication failed or server error');
     }
-    return await response.json();
+    const data = await response.json();
+    if (data.ok === false) throw new Error(data.error || 'Invalid passcode');
+    return data.submissions || data;
   }
 
-  // Local mock submissions list for reviewer
   const localKeyPrefix = 'abuse_test_submission_';
   const submissions = [];
-
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key && key.startsWith(localKeyPrefix)) {
       try {
         const item = JSON.parse(localStorage.getItem(key));
         submissions.push(item);
-      } catch {
-        // ignore malformed items
-      }
+      } catch { /* ignore malformed items */ }
     }
   }
-
-  // Return a sorted list
   return submissions.sort((a, b) => b.displayScore - a.displayScore);
 }

@@ -1,51 +1,68 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
- * Hook to monitor candidate integrity by tracking tab switches (visibility change)
- * and window focus loss (blur events).
+ * useProctoring — detect and count discrete tab/window departures during an active round.
+ *
+ * Replicates flagmail1's double-fire guard: visibilitychange + blur both fire on
+ * a single "away" action, but we only count one violation per departure.
+ *
+ * @param {object} options
+ * @param {boolean} options.active - When false, listeners are removed (violations not reset).
+ * @returns {{ violations: number, switchedAway: boolean, reset: function }}
  */
-export function useProctoring() {
+export function useProctoring({ active = false } = {}) {
   const [violations, setViolations] = useState(0);
-  const isTracking = useRef(false);
+  const [switchedAway, setSwitchedAway] = useState(false);
+  const lastHiddenRef = useRef(false);
 
-  const handleViolation = useCallback(() => {
-    if (isTracking.current) {
-      setViolations(prev => prev + 1);
-    }
-  }, []);
-
-  const startTracking = useCallback(() => {
-    if (!isTracking.current) {
-      isTracking.current = true;
-      window.addEventListener('visibilitychange', handleViolation);
-      window.addEventListener('blur', handleViolation);
-    }
-  }, [handleViolation]);
-
-  const stopTracking = useCallback(() => {
-    if (isTracking.current) {
-      isTracking.current = false;
-      window.removeEventListener('visibilitychange', handleViolation);
-      window.removeEventListener('blur', handleViolation);
-    }
-  }, [handleViolation]);
-
-  const resetViolations = useCallback(() => {
-    setViolations(0);
-  }, []);
-
-  // Ensure clean up of event listeners on unmount
   useEffect(() => {
-    return () => {
-      window.removeEventListener('visibilitychange', handleViolation);
-      window.removeEventListener('blur', handleViolation);
-    };
-  }, [handleViolation]);
+    if (!active) {
+      setSwitchedAway(false);
+      return;
+    }
 
-  return {
-    violations,
-    startTracking,
-    stopTracking,
-    resetViolations
-  };
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'hidden') {
+        if (!lastHiddenRef.current) {
+          lastHiddenRef.current = true;
+          setViolations(v => v + 1);
+          setSwitchedAway(true);
+        }
+      } else {
+        lastHiddenRef.current = false;
+        setSwitchedAway(false);
+      }
+    }
+
+    function handleWindowBlur() {
+      if (!lastHiddenRef.current) {
+        lastHiddenRef.current = true;
+        setViolations(v => v + 1);
+        setSwitchedAway(true);
+      }
+    }
+
+    function handleWindowFocus() {
+      lastHiddenRef.current = false;
+      setSwitchedAway(false);
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('focus', handleWindowFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('focus', handleWindowFocus);
+    };
+  }, [active]);
+
+  const reset = useCallback(() => {
+    setViolations(0);
+    setSwitchedAway(false);
+    lastHiddenRef.current = false;
+  }, []);
+
+  return { violations, switchedAway, reset };
 }

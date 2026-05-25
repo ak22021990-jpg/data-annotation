@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useScoring } from './useScoring.js';
 import { useProctoring } from './useProctoring.js';
+import { registerCandidate } from '../utils/api.js';
 
 export const SCREENS = {
   REGISTER: 'REGISTER',
@@ -11,29 +12,24 @@ export const SCREENS = {
   REVIEWER: 'REVIEWER'
 };
 
-/**
- * Hook to manage the state machine and progression of the annotation test.
- *
- * @param {Array} scenarios - All scenarios to annotate
- * @param {Object} options - Callbacks (e.g. onFinished when results are ready)
- */
 export function useAnnotationState(scenarios, options = {}) {
   const { onFinished } = options;
   const [screen, setScreen] = useState(SCREENS.REGISTER);
   const [candidate, setCandidate] = useState({ name: '', email: '' });
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [answersList, setAnswersList] = useState(() => Array(scenarios.length).fill(null));
+  const [proctorActive, setProctorActive] = useState(false);
 
-  // State for the currently visible scenario's form before submission
   const [currentSeverity, setCurrentSeverity] = useState(null);
   const [currentSignals, setCurrentSignals] = useState([]);
   const [currentAction, setCurrentAction] = useState(null);
 
   const scoring = useScoring(scenarios.length);
-  const { violations, startTracking, stopTracking, resetViolations } = useProctoring();
+  const { violations, switchedAway, reset: resetProctoring } = useProctoring({ active: proctorActive });
 
   const register = useCallback((name, email) => {
     setCandidate({ name, email });
+    registerCandidate(name, email);
     setScreen(SCREENS.TUTORIAL);
   }, []);
 
@@ -43,21 +39,17 @@ export function useAnnotationState(scenarios, options = {}) {
     setCurrentSignals([]);
     setCurrentAction(null);
     setScreen(SCREENS.ANNOTATE);
-    startTracking();
-  }, [startTracking]);
+    setProctorActive(true);
+  }, []);
 
   const submitAnnotation = useCallback((autoSubmittedAnswers = null) => {
-    // Determine target answers (either explicitly provided or from current state)
     const severity = autoSubmittedAnswers ? autoSubmittedAnswers.severity : currentSeverity;
     const signals = autoSubmittedAnswers ? autoSubmittedAnswers.signals : currentSignals;
     const action = autoSubmittedAnswers ? autoSubmittedAnswers.action : currentAction;
 
     const answers = { severity, signals, action };
-
-    // Record the score
     const record = scoring.scoreScenario(scenarioIndex, scenarios[scenarioIndex], answers);
 
-    // Save the answers
     let updatedAnswersList;
     setAnswersList(prev => {
       const next = [...prev];
@@ -67,7 +59,6 @@ export function useAnnotationState(scenarios, options = {}) {
     });
 
     setScreen(SCREENS.FEEDBACK);
-
     return { answers, record, updatedAnswersList };
   }, [scenarioIndex, currentSeverity, currentSignals, currentAction, scenarios, scoring]);
 
@@ -79,7 +70,7 @@ export function useAnnotationState(scenarios, options = {}) {
       setCurrentAction(null);
       setScreen(SCREENS.ANNOTATE);
     } else {
-      stopTracking();
+      setProctorActive(false);
       setScreen(SCREENS.RESULTS);
       if (onFinished) {
         onFinished({
@@ -89,16 +80,16 @@ export function useAnnotationState(scenarios, options = {}) {
           totalPoints: scoring.totalPoints,
           displayScore: scoring.displayScore,
           band: scoring.band,
-          violations
+          violations,
+          scenarios
         });
       }
     }
-  }, [scenarioIndex, scenarios.length, candidate, answersList, scoring, onFinished, stopTracking, violations]);
+  }, [scenarioIndex, scenarios, candidate, answersList, scoring, onFinished, violations]);
 
   const toggleSignal = useCallback((signalId) => {
     setCurrentSignals(prev => {
       if (signalId === 'none-detected') {
-        // 'none-detected' is mutually exclusive with any actual abuse signals
         return prev.includes('none-detected') ? [] : ['none-detected'];
       } else {
         const next = prev.filter(s => s !== 'none-detected');
@@ -119,9 +110,10 @@ export function useAnnotationState(scenarios, options = {}) {
     setCurrentSeverity(null);
     setCurrentSignals([]);
     setCurrentAction(null);
+    setProctorActive(false);
     scoring.resetScores();
-    resetViolations();
-  }, [scenarios.length, scoring, resetViolations]);
+    resetProctoring();
+  }, [scenarios.length, scoring, resetProctoring]);
 
   return {
     screen,
@@ -141,7 +133,7 @@ export function useAnnotationState(scenarios, options = {}) {
     nextScenario,
     resetAll,
     violations,
+    switchedAway,
     ...scoring
   };
 }
-
