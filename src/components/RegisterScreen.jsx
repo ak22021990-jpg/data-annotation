@@ -6,7 +6,7 @@ const localGlass = { ...glass, background: 'rgba(255,255,255,0.72)' };
 
 const STATS = [
   { value: '10', label: 'emails' },
-  { value: '2m', label: 'per round' },
+  { value: '2 Mins', label: 'per round' },
   { value: '3', label: 'points/email' },
 ];
 

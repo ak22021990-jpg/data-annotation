@@ -13,7 +13,7 @@ const TIPS = [
   },
   {
     icon: '🗂️',
-    title: 'Classify in two layers',
+    title: 'Classify in three layers',
     caption: 'Pick the primary severity, then refine your signals.',
   },
   {
