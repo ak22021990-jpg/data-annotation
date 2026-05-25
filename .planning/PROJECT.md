@@ -6,7 +6,8 @@ A browser-based hiring screening test for the Apple Email Abuse Annotation team.
 Candidates work through 10 reported-email scenarios — reading full headers, body, and
 any annotator context note — and fill an annotation form for each: severity, abuse
 signals, and recommended action. The test auto-scores every annotation, shows a
-per-scenario results breakdown, and exposes a reviewer screen for hiring decisions.
+per-scenario results breakdown, and exposes an admin panel for hiring managers to
+review candidate efficiency and download reports.
 
 It is a fresh React rebuild that reuses the **visual theme and design language** of the
 sibling project `flagmail1` — but not its game mechanics. The content and game logic
@@ -35,7 +36,8 @@ automatic, defensible score plus a per-scenario breakdown that a reviewer can tr
 - [ ] Per-scenario feedback showing the model answer reasoning after submission
 - [ ] Results screen with total score, band/title (Foundation / Proficient / Advanced), and per-scenario breakdown
 - [ ] Badge system reusing flagmail1 badge art/animations with unlock conditions redefined for the flat annotation flow
-- [ ] Leaderboard of candidate scores
+- [ ] Candidate efficiency statistics showing hiring-relevant performance metrics (accuracy, time, signal detection rate)
+- [ ] Admin panel at `/annotation/admin` for reviewing candidate results and downloading individual/overall reports
 - [ ] Reviewer screen (passcode-gated) showing candidate results and proctoring violations
 - [ ] Proctoring: track tab-switch / focus-loss violations during the test
 - [ ] Google Apps Script + Sheets backend for registration and score submission
@@ -72,8 +74,9 @@ automatic, defensible score plus a per-scenario breakdown that a reviewer can tr
 
 ## Constraints
 
-- **Tech stack**: React 19 + Vite + plain JavaScript — no TypeScript, no router, no
-  state library, no CSS framework. Match flagmail1's hook/component conventions.
+- **Tech stack**: React 19 + Vite + plain JavaScript — no TypeScript, lightweight router
+  for `/annotation` and `/annotation/admin` routes, no state library, no CSS framework.
+  Match flagmail1's hook/component conventions.
 - **Backend**: Reuse the Google Apps Script + Sheets integration pattern — no new
   backend service.
 - **Auth**: Reviewer access is a shared passcode only — no identity provider.
@@ -97,6 +100,9 @@ automatic, defensible score plus a per-scenario breakdown that a reviewer can tr
 | Reuse flagmail1 badge art, redefine unlock conditions | No zones/streaks to trigger original badges | — Pending |
 | Keep Google Apps Script + Sheets backend | No new backend; reuse working pattern | — Pending |
 | Include proctoring (tab-switch tracking) | Reviewer needs integrity signal for hiring | — Pending |
+| Add lightweight router | Admin panel needs separate route at `/annotation/admin` | — Pending |
+| Replace leaderboard with candidate efficiency stats | Hiring test is one-time; efficiency metrics more useful than ranked scores | — Pending |
+| Tweak scoring weights/thresholds | Existing scoring model needs calibration for hiring accuracy | — Pending |
 
 ## Evolution
 
@@ -116,4 +122,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-22 after initialization*
+*Last updated: 2026-05-25 after scope change: admin panel, efficiency stats, router, scoring tweaks*

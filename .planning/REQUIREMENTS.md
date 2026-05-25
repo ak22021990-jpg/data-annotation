@@ -22,8 +22,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **SCORE-01**: A pure `scoreRound()` function scores one annotation: severity, signals, action, 0–3 points with 0.5 partial credit
 - [ ] **SCORE-02**: Scenarios with no required signals award full signal credit only when the candidate selects nothing (or `none-detected`)
 - [ ] **SCORE-03**: Total score aggregates to 30 max; `displayScore` is `round((total/30)*100)`
-- [ ] **SCORE-04**: Results are banded into Foundation / Proficient / Advanced titles by displayScore thresholds
+- [ ] **SCORE-04**: Results are banded into Foundation / Proficient / Advanced titles by calibrated displayScore thresholds
 - [ ] **SCORE-05**: Scoring is deterministic — no external API call at grade time
+- [ ] **SCORE-06**: Scoring weights and band thresholds are calibrated for hiring accuracy — severity, signal, and action point contributions tuned to differentiate candidate skill levels
 
 ### Test Flow
 
@@ -48,7 +49,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **RESULT-01**: A results screen shows total score, displayScore percentage, band/title, and a per-scenario breakdown
 - [ ] **RESULT-02**: Registration and final score submit to a Google Apps Script + Google Sheets backend
 - [ ] **RESULT-03**: The full submission payload is written to `localStorage` before every backend POST as a data-loss safeguard
-- [ ] **LEAD-01**: A leaderboard of candidate scores is fetched from the backend and displayed
+- [ ] **STATS-01**: Candidate efficiency statistics display hiring-relevant metrics: overall accuracy %, time efficiency, signal detection rate, and severity judgment accuracy
+- [ ] **STATS-02**: Efficiency metrics are computed from the candidate's annotation data and shown on the results screen
 
 ### Reviewer & Integrity
 
@@ -56,6 +58,20 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **REV-02**: The reviewer screen shows candidate results including proctoring violation counts
 - [ ] **PROCTOR-01**: Tab-switch / focus-loss violations are tracked during the test
 - [ ] **PROCTOR-02**: Proctoring violations accumulate across all 10 scenarios and are included in the score submission
+
+### Admin
+
+- [ ] **ADMIN-01**: Admin panel accessible at `/annotation/admin` route
+- [ ] **ADMIN-02**: Admin panel displays a list of all candidates with their scores, bands, and efficiency metrics
+- [ ] **ADMIN-03**: Admin can view detailed individual candidate report showing per-scenario breakdown and annotation answers
+- [ ] **ADMIN-04**: Admin can download individual candidate report (PDF or CSV)
+- [ ] **ADMIN-05**: Admin can download overall report summarizing all candidates' results and efficiency metrics
+- [ ] **ADMIN-06**: Admin panel is protected — unauthorized access redirects to candidate flow or shows access denied
+
+### Routing
+
+- [ ] **ROUTE-01**: Lightweight router handles `/annotation` (candidate flow) and `/annotation/admin` (admin panel)
+- [ ] **ROUTE-02**: Router does not interfere with existing navigation within the candidate flow
 
 ### Badges & Design
 
@@ -116,6 +132,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SCORE-03 | Phase 2 | Pending |
 | SCORE-04 | Phase 2 | Pending |
 | SCORE-05 | Phase 2 | Pending |
+| SCORE-06 | Phase 2 | Pending |
 | FLOW-01 | Phase 3 | Pending |
 | FLOW-02 | Phase 3 | Pending |
 | FLOW-03 | Phase 3 | Pending |
@@ -131,7 +148,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RESULT-01 | Phase 4 | Pending |
 | RESULT-02 | Phase 4 | Pending |
 | RESULT-03 | Phase 4 | Pending |
-| LEAD-01 | Phase 4 | Pending |
+| STATS-01 | Phase 4 | Pending |
+| STATS-02 | Phase 4 | Pending |
+| ADMIN-01 | Phase 5 | Pending |
+| ADMIN-02 | Phase 5 | Pending |
+| ADMIN-03 | Phase 5 | Pending |
+| ADMIN-04 | Phase 5 | Pending |
+| ADMIN-05 | Phase 5 | Pending |
+| ADMIN-06 | Phase 5 | Pending |
+| ROUTE-01 | Phase 5 | Pending |
+| ROUTE-02 | Phase 5 | Pending |
 | BADGE-01 | Phase 4 | Pending |
 | BADGE-02 | Phase 4 | Pending |
 | DESIGN-01 | Phase 4 | Pending |
@@ -145,10 +171,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QA-03 | Phase 6 | Pending |
 
 **Coverage:**
-- v1 requirements: 33 total
-- Mapped to phases: 33
+- v1 requirements: 43 total
+- Mapped to phases: 43
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-05-22*
-*Last updated: 2026-05-22 after roadmap creation*
+*Last updated: 2026-05-25 after scope change: admin panel, efficiency stats, router, scoring tweaks*
