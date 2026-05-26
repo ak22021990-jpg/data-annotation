@@ -38,7 +38,7 @@ export const BADGES = [
  * @param {Object} results - { scores, totalPoints, elapsedSeconds }
  * @returns {Array} Unlocked badge objects
  */
-export function checkBadges({ scores, totalPoints }) {
+export function checkBadges({ scores, totalPoints, elapsedSeconds }) {
   const unlocked = [];
 
   if (!scores || scores.length === 0) return unlocked;
@@ -55,7 +55,14 @@ export function checkBadges({ scores, totalPoints }) {
     if (accuracyBadge) unlocked.push(accuracyBadge);
   }
 
-  // 3. Action Specialist (Action points = 1.0 for all scenarios)
+  // 3. Speed Demon (finished in under 60% of total time — < 720s for 10×2min)
+  const totalAvailable = scores.length * 120;
+  if (elapsedSeconds != null && elapsedSeconds < totalAvailable * 0.6) {
+    const speedBadge = BADGES.find(b => b.id === 'speed-demon');
+    if (speedBadge) unlocked.push(speedBadge);
+  }
+
+  // 4. Action Specialist (Action points = 1.0 for all scenarios)
   const allActionsCorrect = scores.every(s => s && s.actionPoints === 1.0);
   if (allActionsCorrect) {
     const actionBadge = BADGES.find(b => b.id === 'clean-sheet');

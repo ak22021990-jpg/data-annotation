@@ -42,7 +42,7 @@ export default function LeaderboardScreen() {
               <tr>
                 <th style={{ width: '60px' }}>Rank</th>
                 <th>Candidate Name</th>
-                <th style={{ textAlignment: 'right', width: '100px' }}>Score</th>
+                <th style={{ textAlign: 'right', width: '100px' }}>Score</th>
                 <th style={{ width: '150px' }}>Band</th>
               </tr>
             </thead>
@@ -57,7 +57,7 @@ export default function LeaderboardScreen() {
                   <tr key={index} className={badgeClass}>
                     <td><strong>#{index + 1}</strong></td>
                     <td>{entry.name}</td>
-                    <td style={{ textAlignment: 'right' }}>{entry.displayScore}%</td>
+                    <td style={{ textAlign: 'right' }}>{entry.displayScore}%</td>
                     <td>
                       <span className={`band-pill ${entry.band?.toLowerCase()}`}>
                         {entry.band}

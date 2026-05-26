@@ -8,8 +8,8 @@ const TIPS = [
   },
   {
     icon: '💡',
-    title: 'Use hints only when needed',
-    caption: 'Look out for context clues carefully.',
+    title: 'Review context before annotating',
+    caption: 'Examine the sender, domain, and email body carefully.',
   },
   {
     icon: '🗂️',
@@ -18,8 +18,8 @@ const TIPS = [
   },
   {
     icon: '⏱️',
-    title: 'Lock the call in fast',
-    caption: 'You have exactly 2 minutes per scenario.',
+    title: 'Submit within the time limit',
+    caption: 'You have 2 minutes per scenario. Submit before time expires.',
   },
 ];
 

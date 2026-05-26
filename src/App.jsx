@@ -9,7 +9,6 @@ import FeedbackScreen from './components/FeedbackScreen.jsx';
 import ResultsScreen from './components/ResultsScreen.jsx';
 import ReviewerScreen from './components/ReviewerScreen.jsx';
 import Timer from './components/Timer.jsx';
-import ProgressBar from './components/ProgressBar.jsx';
 import { submitResults } from './utils/api.js';
 import { surface } from './styles/tokens.js';
 import './App.css';
@@ -93,9 +92,9 @@ function AnnotateHeader({ scenarioIndex, total, durationSeconds, onExpire }) {
  * App - Main router for the Email Abuse Annotation Test.
  */
 function App() {
-  const handleFinished = useCallback(({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList }) => {
+  const handleFinished = useCallback(({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds }) => {
     submitResults({
-      candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList
+      candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds
     });
   }, []);
 
@@ -127,14 +126,14 @@ function App() {
   const submitDisabled = !currentSeverity || !currentAction;
 
   const handleTimerExpire = () => { submitAnnotation(); };
-  const goToReviewer = () => { setScreen(SCREENS.REVIEWER); };
+  const handleReviewerAccess = () => { setScreen(SCREENS.REVIEWER); };
   const handleReviewerBack = () => { resetAll(); };
 
   // ─── Non-annotate screens ───
   if (screen !== SCREENS.ANNOTATE) {
     return (
       <>
-        {screen === SCREENS.REGISTER && <RegisterScreen onRegister={register} />}
+        {screen === SCREENS.REGISTER && <RegisterScreen onRegister={register} onReviewerAccess={handleReviewerAccess} />}
         {screen === SCREENS.TUTORIAL && <TutorialScreen candidateName={candidate.name} onStart={startTest} />}
         {screen === SCREENS.FEEDBACK && (
           <FeedbackScreen

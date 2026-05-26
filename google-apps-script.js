@@ -21,7 +21,7 @@
  *   Edit the REVIEWER_EMAILS array below.
  */
 
-var SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID_HERE';
+var SPREADSHEET_ID = '1J1Y2WFySEnFsTTq75JqyMGE9eJZBcaXl0-Pty7ZFm9Y';
 
 var REVIEWER_EMAILS = [
   'pavan.machala@sutherlandglobal.com',
@@ -318,6 +318,35 @@ function doGet(e) {
         violations: Number(row[10]),
         finalScore: Number(row[11])
       });
+    }
+
+    // Attach per-scenario raw data grouped by email
+    if (sheets.raw.getLastRow() >= 2) {
+      var rawData = sheets.raw.getRange(2, 1, sheets.raw.getLastRow() - 1, 15).getValues();
+      var rawByEmail = {};
+      for (var j = 0; j < rawData.length; j++) {
+        var r = rawData[j];
+        var email = String(r[2]).trim().toLowerCase();
+        if (!rawByEmail[email]) rawByEmail[email] = [];
+        rawByEmail[email].push({
+          scenarioId: r[3],
+          scenarioTitle: r[4],
+          selectedSeverity: r[5],
+          correctSeverity: r[6],
+          severityPoints: Number(r[7]),
+          selectedSignals: r[8],
+          requiredSignals: r[9],
+          signalPoints: Number(r[10]),
+          selectedAction: r[11],
+          correctAction: r[12],
+          actionPoints: Number(r[13]),
+          totalPoints: Number(r[14])
+        });
+      }
+      for (var k = 0; k < submissions.length; k++) {
+        var key = String(submissions[k].email).trim().toLowerCase();
+        submissions[k].perScenario = rawByEmail[key] || [];
+      }
     }
 
     submissions.sort(function(a, b) {

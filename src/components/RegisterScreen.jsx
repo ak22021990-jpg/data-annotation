@@ -15,7 +15,7 @@ const STATS = [
  *
  * @param {Object} props - { onRegister }
  */
-export default function RegisterScreen({ onRegister }) {
+export default function RegisterScreen({ onRegister, onReviewerAccess }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [focusedField, setFocusedField] = useState(null);
@@ -275,6 +275,31 @@ export default function RegisterScreen({ onRegister }) {
                 </div>
               ))}
             </div>
+
+            {onReviewerAccess && (
+              <button
+                type="button"
+                onClick={onReviewerAccess}
+                style={{
+                  width: '100%', padding: '10px 18px', borderRadius: 14,
+                  border: '1px solid rgba(13,26,51,0.10)',
+                  background: 'transparent',
+                  color: 'rgba(17,24,39,0.48)', fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'color 0.2s, border-color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#0A84FF';
+                  e.target.style.borderColor = 'rgba(10,132,255,0.30)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = 'rgba(17,24,39,0.48)';
+                  e.target.style.borderColor = 'rgba(13,26,51,0.10)';
+                }}
+              >
+                Reviewer Access
+              </button>
+            )}
           </div>
         </div>
       </div>

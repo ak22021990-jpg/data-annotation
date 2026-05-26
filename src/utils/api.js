@@ -1,4 +1,5 @@
 import { GAS_URL } from '../config/config.js';
+import { calculateAccuracy } from './score.js';
 
 function safeguardSubmission(payload) {
   try {
@@ -111,20 +112,9 @@ function buildPerScenarioData(scenarios, answersList, scores) {
  * @param {Array} params.scenarios - Scenario definitions (for building per-scenario data)
  * @returns {Promise<Object>}
  */
-export async function submitResults({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios }) {
-  let sevCorrect = 0, actCorrect = 0, sigPoints = 0;
-  scenarios.forEach((sc, idx) => {
-    const ans = answers[idx];
-    if (ans) {
-      if (sc.scoring.severity.correct.includes(ans.severity)) sevCorrect++;
-      if (sc.scoring.action.correct.includes(ans.action)) actCorrect++;
-    }
-    if (scores[idx]) sigPoints += scores[idx].signalPoints || 0;
-  });
-
-  const severityAcc = Math.round((sevCorrect / scenarios.length) * 100);
-  const signalAcc = Math.round((sigPoints / scenarios.length) * 100);
-  const actionAcc = Math.round((actCorrect / scenarios.length) * 100);
+export async function submitResults({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios, elapsedSeconds }) {
+  const { severityAcc, signalAcc, actionAcc } =
+    calculateAccuracy(scenarios, answers, scores);
 
   const perScenario = buildPerScenarioData(scenarios, answers, scores);
 
@@ -136,6 +126,7 @@ export async function submitResults({ candidate, answers, scores, totalPoints, d
     displayScore,
     band,
     violations,
+    elapsedSeconds,
     severityAcc,
     signalAcc,
     actionAcc,

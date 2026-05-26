@@ -2,6 +2,7 @@ import { checkBadges } from '../config/badges.js';
 import BadgeDisplay from './BadgeDisplay.jsx';
 import LeaderboardScreen from './LeaderboardScreen.jsx';
 import { glass } from '../styles/tokens.js';
+import { calculateAccuracy } from '../utils/score.js';
 
 // ResultsScreen uses softer surface style
 const surface = {
@@ -30,39 +31,24 @@ export default function ResultsScreen({
   displayScore,
   band,
   scenarios,
-  onRetake,
+  onRetake: _onRetake,
+  elapsedSeconds,
 }) {
-  const earnedBadges = checkBadges({ scores, totalPoints });
+  const earnedBadges = checkBadges({ scores, totalPoints, elapsedSeconds });
   const tone = titleTone(displayScore);
 
-  // Compute accuracy per category
-  let sevCorrect = 0, actCorrect = 0, sigPoints = 0;
-  scores.forEach(s => {
-    if (s) {
-      if (s.points > 0 && s.signalPoints > 0) {
-         // rough estimation, since scores object only stores total points per scenario and signalPoints
-      }
-      sigPoints += s.signalPoints || 0;
-    }
-  });
+  const { sevCorrect, actCorrect, sigPoints, severityAcc, signalAcc, actionAcc } =
+    calculateAccuracy(scenarios, answersList, scores);
 
-  // Calculate actual counts by iterating answers vs scoring config
-  scenarios.forEach((sc, idx) => {
-    const ans = answersList[idx];
-    if (ans) {
-      if (sc.scoring.severity.correct.includes(ans.severity)) sevCorrect++;
-      if (sc.scoring.action.correct.includes(ans.action)) actCorrect++;
-    }
-  });
-
-  const sevAcc = Math.round((sevCorrect / scenarios.length) * 100);
-  const actAcc = Math.round((actCorrect / scenarios.length) * 100);
-  const sigAcc = Math.round((sigPoints / scenarios.length) * 100);
+  const totalAvailableSeconds = scenarios.length * 120;
+  const timeRemaining = Math.max(0, totalAvailableSeconds - (elapsedSeconds || 0));
+  const timeEfficiency = Math.round((timeRemaining / totalAvailableSeconds) * 100);
 
   const summaryCards = [
-    { label: 'Category 1', name: 'Severity', score: sevAcc, max: 100, accent: '#0A84FF', desc: 'Accuracy' },
-    { label: 'Category 2', name: 'Abuse Signals', score: sigAcc, max: 100, accent: '#FF7A1A', desc: 'Accuracy' },
-    { label: 'Category 3', name: 'Action', score: actAcc, max: 100, accent: '#30B0C7', desc: 'Accuracy' },
+    { label: 'Severity', name: 'Severity Judgment', score: severityAcc, max: 100, accent: '#0A84FF', desc: 'Accuracy' },
+    { label: 'Signals', name: 'Abuse Signal Detection', score: signalAcc, max: 100, accent: '#FF7A1A', desc: 'Accuracy' },
+    { label: 'Action', name: 'Action Recommendation', score: actionAcc, max: 100, accent: '#30B0C7', desc: 'Accuracy' },
+    { label: 'Time', name: 'Time Efficiency', score: timeEfficiency, max: 100, accent: '#34C759', desc: 'Remaining' },
   ];
 
   return (
@@ -79,9 +65,12 @@ export default function ResultsScreen({
           .results-top-grid, .results-mid-grid, .results-actions {
             grid-template-columns: 1fr !important;
           }
+          .results-metric-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
         }
         @media (max-width: 720px) {
-          .results-zone-grid {
+          .results-metric-grid {
             grid-template-columns: 1fr !important;
           }
           .breakdown-table th, .breakdown-table td {
@@ -125,7 +114,7 @@ export default function ResultsScreen({
                 {candidate.name}'s final judgment score.
               </h1>
               <p style={{ margin: '14px 0 0', fontSize: 16, lineHeight: 1.6, color: 'rgba(17,24,39,0.64)', maxWidth: 560 }}>
-                Based on how accurately you classified severity, signals, and actions across {scenarios.length} scenarios.
+                Based on how accurately you judged severity, signals, and actions across {scenarios.length} scenarios.
               </p>
             </div>
 
@@ -152,8 +141,8 @@ export default function ResultsScreen({
         </div>
 
         {/* Summary Metric Cards */}
-        <div className="results-zone-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
-          {summaryCards.map((card, index) => (
+        <div className="results-metric-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 12 }}>
+          {summaryCards.map((card) => (
             <div key={card.label} style={{ ...surface, borderRadius: 26, padding: 18, display: 'grid', gap: 8 }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: card.accent }}>
                 {card.label}
@@ -212,10 +201,68 @@ export default function ResultsScreen({
                 <span style={{ fontWeight: 600, color: '#34C759' }}>{sigPoints}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'rgba(17,24,39,0.7)' }}>Missed:</span>
-                <span style={{ fontWeight: 600, color: '#FF3B30' }}>{scenarios.length - sigPoints}</span>
+                <span style={{ color: 'rgba(17,24,39,0.7)' }}>Points missed:</span>
+                <span style={{ fontWeight: 600, color: '#FF3B30' }}>{(scenarios.length - sigPoints).toFixed(1)} pts</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Per-Scenario Breakdown Table */}
+        <div style={{ ...surface, borderRadius: 28, padding: 24, overflow: 'hidden' }}>
+          <h3 style={{ margin: '0 0 16px 0', fontSize: 18, fontWeight: 700, color: '#111827' }}>Per-Scenario Breakdown</h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="breakdown-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Scenario</th>
+                  <th>Severity</th>
+                  <th>Signals</th>
+                  <th>Action</th>
+                  <th style={{ textAlign: 'right' }}>Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scenarios.map((sc, idx) => {
+                  const ans = answersList[idx] || {};
+                  const scScore = scores[idx] || {};
+                  const sevOk = ans.severity && sc.scoring.severity.correct.includes(ans.severity);
+                  const actOk = ans.action && sc.scoring.action.correct.includes(ans.action);
+                  const pts = scScore.points || 0;
+                  return (
+                    <tr key={sc.id}>
+                      <td style={{ fontWeight: 600, color: 'rgba(17,24,39,0.4)' }}>{idx + 1}</td>
+                      <td style={{ fontWeight: 600, color: '#111827' }}>{sc.title || `Scenario ${sc.id}`}</td>
+                      <td>
+                        <span style={{
+                          display: 'inline-block', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                          background: sevOk ? 'rgba(52,199,89,0.10)' : 'rgba(255,59,48,0.08)',
+                          color: sevOk ? '#34C759' : '#FF3B30',
+                        }}>
+                          {ans.severity || '—'}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: 13, color: 'rgba(17,24,39,0.65)', maxWidth: 200 }}>
+                        {(ans.signals || []).length > 0 ? (ans.signals || []).join(', ') : 'None'}
+                      </td>
+                      <td>
+                        <span style={{
+                          display: 'inline-block', padding: '3px 8px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                          background: actOk ? 'rgba(52,199,89,0.10)' : 'rgba(255,59,48,0.08)',
+                          color: actOk ? '#34C759' : '#FF3B30',
+                        }}>
+                          {ans.action || '—'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: 700, fontSize: 16, color: pts >= 2 ? '#34C759' : pts >= 1 ? '#FF9500' : '#FF3B30' }}>
+                        {pts.toFixed(1)} / 3
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
 

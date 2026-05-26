@@ -30,18 +30,29 @@ const SECTION_LABEL = {
   textTransform: 'uppercase', color: 'rgba(17,24,39,0.52)',
 };
 
-const SECTION_HINT = {
+const SECTION_DESC = {
   fontSize: 11, color: 'rgba(17,24,39,0.60)',
 };
 
 // Large pill button used for Severity and Action (single-select)
-function RadioPill({ label, active, color, onClick, disabled }) {
+function RadioPill({ label, active, color, onClick, disabled, _groupId }) {
   const rgb = hexToRgb(color);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
   return (
     <button
       type="button"
+      role="radio"
+      aria-checked={active}
+      aria-label={label}
+      tabIndex={disabled ? -1 : 0}
       onClick={onClick}
       disabled={disabled}
+      onKeyDown={handleKeyDown}
       style={{
         padding: '10px 14px',
         borderRadius: 16,
@@ -79,11 +90,22 @@ function RadioPill({ label, active, color, onClick, disabled }) {
 function CheckPill({ label, active, onClick, disabled }) {
   const color = '#0A84FF';
   const rgb = hexToRgb(color);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
   return (
     <button
       type="button"
+      role="checkbox"
+      aria-checked={active}
+      aria-label={label}
+      tabIndex={disabled ? -1 : 0}
       onClick={onClick}
       disabled={disabled}
+      onKeyDown={handleKeyDown}
       style={{
         padding: '9px 13px',
         borderRadius: 999,
@@ -135,9 +157,12 @@ export default function AnnotationForm({
       <div style={{ display: 'grid', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={SECTION_LABEL}>Severity</div>
-          <div style={SECTION_HINT}>Select the severity level of this email</div>
+          <div style={SECTION_DESC}>Select the severity level of this email</div>
         </div>
-        <div style={{
+        <div
+          role="radiogroup"
+          aria-label="Severity level"
+          style={{
           borderRadius: 22, padding: 14,
           background: `linear-gradient(180deg, ${accentColor}10 0%, rgba(255,255,255,0.94) 100%)`,
           border: `1px solid ${accentColor}18`,
@@ -165,9 +190,12 @@ export default function AnnotationForm({
       <div style={{ display: 'grid', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={SECTION_LABEL}>Abuse signals detected</div>
-          <div style={SECTION_HINT}>Select all that apply</div>
+          <div style={SECTION_DESC}>Select all that apply</div>
         </div>
-        <div style={{
+        <div
+          role="group"
+          aria-label="Abuse signals detected"
+          style={{
           borderRadius: 20,
           background: 'rgba(249,250,252,0.88)',
           border: '1px solid rgba(13,26,51,0.06)',
@@ -195,9 +223,12 @@ export default function AnnotationForm({
       <div style={{ display: 'grid', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div style={SECTION_LABEL}>Recommended action</div>
-          <div style={SECTION_HINT}>Choose the enforcement action</div>
+          <div style={SECTION_DESC}>Choose the enforcement action</div>
         </div>
-        <div style={{
+        <div
+          role="radiogroup"
+          aria-label="Recommended action"
+          style={{
           borderRadius: 20,
           background: `linear-gradient(180deg, ${accentColor}0D 0%, rgba(255,255,255,0.82) 100%)`,
           border: `1px solid ${accentColor}1F`,

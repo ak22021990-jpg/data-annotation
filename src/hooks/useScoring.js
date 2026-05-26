@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { scoreRound, calculateOverallResults } from '../utils/score.js';
 
 /**
@@ -10,7 +10,7 @@ import { scoreRound, calculateOverallResults } from '../utils/score.js';
 export function useScoring(scenariosCount = 10) {
   const [scores, setScores] = useState(() => Array(scenariosCount).fill(null));
 
-  const scoreScenario = (scenarioIndex, scenario, answers) => {
+  const scoreScenario = useCallback((scenarioIndex, scenario, answers) => {
     const record = scoreRound(scenario, answers);
     setScores(prev => {
       const next = [...prev];
@@ -18,11 +18,11 @@ export function useScoring(scenariosCount = 10) {
       return next;
     });
     return record;
-  };
+  }, []);
 
-  const resetScores = () => {
+  const resetScores = useCallback(() => {
     setScores(Array(scenariosCount).fill(null));
-  };
+  }, [scenariosCount]);
 
   // Calculate derived overall metrics
   const totalPoints = scores.reduce((sum, record) => sum + (record ? record.points : 0), 0);

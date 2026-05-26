@@ -1,0 +1,203 @@
+# Graph Report - C:\Users\anoop\OneDrive\Desktop\apple\annotation  (2026-05-25)
+
+## Corpus Check
+- 32 files · ~20,926 words
+- Verdict: corpus is large enough that graph structure adds value.
+
+## Summary
+- 81 nodes · 79 edges · 25 communities detected
+- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.8)
+- Token cost: 0 input · 0 output
+
+## Community Hubs (Navigation)
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 13|Community 13]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
+- [[_COMMUNITY_Community 19|Community 19]]
+- [[_COMMUNITY_Community 20|Community 20]]
+- [[_COMMUNITY_Community 21|Community 21]]
+- [[_COMMUNITY_Community 22|Community 22]]
+- [[_COMMUNITY_Community 23|Community 23]]
+- [[_COMMUNITY_Community 24|Community 24]]
+
+## God Nodes (most connected - your core abstractions)
+1. `doPost()` - 7 edges
+2. `doGet()` - 5 edges
+3. `hexToRgb()` - 4 edges
+4. `EmailDisplay()` - 4 edges
+5. `useAnnotationState()` - 4 edges
+6. `submitResults()` - 4 edges
+7. `getSpreadsheet()` - 3 edges
+8. `ensureSheets()` - 3 edges
+9. `findRowByEmail()` - 3 edges
+10. `jsonResponse()` - 3 edges
+
+## Surprising Connections (you probably didn't know these)
+- `App()` --calls--> `useAnnotationState()`  [INFERRED]
+  C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\App.jsx → C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\hooks\useAnnotationState.js
+- `ResultsScreen()` --calls--> `checkBadges()`  [INFERRED]
+  C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\components\ResultsScreen.jsx → C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\config\badges.js
+- `ReviewerScreen()` --calls--> `useReviewer()`  [INFERRED]
+  C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\components\ReviewerScreen.jsx → C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\hooks\useReviewer.js
+- `Timer()` --calls--> `useTimer()`  [INFERRED]
+  C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\components\Timer.jsx → C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\hooks\useTimer.js
+- `useAnnotationState()` --calls--> `useScoring()`  [INFERRED]
+  C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\hooks\useAnnotationState.js → C:\Users\anoop\OneDrive\Desktop\apple\annotation\src\hooks\useScoring.js
+
+## Communities
+
+### Community 0 - "Community 0"
+Cohesion: 0.17
+Nodes (5): App(), calculateOverallResults(), useAnnotationState(), useProctoring(), useScoring()
+
+### Community 1 - "Community 1"
+Cohesion: 0.31
+Nodes (6): buildPerScenarioData(), fetchLeaderboard(), getLocalLeaderboard(), safeguardSubmission(), saveLocalLeaderboard(), submitResults()
+
+### Community 2 - "Community 2"
+Cohesion: 0.5
+Nodes (8): csvEscape(), doGet(), doPost(), ensureSheets(), findRowByEmail(), getSpreadsheet(), jsonResponse(), sanitiseCell()
+
+### Community 3 - "Community 3"
+Cohesion: 0.53
+Nodes (4): avatarColor(), EmailDisplay(), formatTime(), getInitials()
+
+### Community 4 - "Community 4"
+Cohesion: 0.7
+Nodes (4): AnnotationForm(), CheckPill(), hexToRgb(), RadioPill()
+
+### Community 5 - "Community 5"
+Cohesion: 0.5
+Nodes (3): checkBadges(), ResultsScreen(), titleTone()
+
+### Community 6 - "Community 6"
+Cohesion: 0.5
+Nodes (2): ReviewerScreen(), useReviewer()
+
+### Community 7 - "Community 7"
+Cohesion: 0.5
+Nodes (2): Timer(), useTimer()
+
+### Community 8 - "Community 8"
+Cohesion: 1.0
+Nodes (2): mockSetScores(), scoreScenarioSim()
+
+### Community 9 - "Community 9"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 10 - "Community 10"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 11 - "Community 11"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 12 - "Community 12"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 13 - "Community 13"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 14 - "Community 14"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 15 - "Community 15"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 16 - "Community 16"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 17 - "Community 17"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 18 - "Community 18"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 19 - "Community 19"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 20 - "Community 20"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 21 - "Community 21"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 22 - "Community 22"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 23 - "Community 23"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 24 - "Community 24"
+Cohesion: 1.0
+Nodes (0): 
+
+## Knowledge Gaps
+- **Thin community `Community 9`** (2 nodes): `verify-phase1.mjs`, `check()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 10`** (2 nodes): `BadgeDisplay()`, `BadgeDisplay.jsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 11`** (2 nodes): `FeedbackScreen.jsx`, `FeedbackScreen()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 12`** (2 nodes): `LeaderboardScreen.jsx`, `LeaderboardScreen()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 13`** (2 nodes): `ProgressBar.jsx`, `ProgressBar()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 14`** (2 nodes): `RegisterScreen.jsx`, `RegisterScreen()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 15`** (2 nodes): `TutorialScreen.jsx`, `TutorialScreen()`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 16`** (1 nodes): `eslint.config.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 17`** (1 nodes): `vite.config.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 18`** (1 nodes): `main.jsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 19`** (1 nodes): `config.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 20`** (1 nodes): `game.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 21`** (1 nodes): `scenarios.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 22`** (1 nodes): `taxonomy.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 23`** (1 nodes): `score-verification.test.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 24`** (1 nodes): `score.test.js`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+
+## Suggested Questions
+_Questions this graph is uniquely positioned to answer:_
+
+- **Are the 3 inferred relationships involving `useAnnotationState()` (e.g. with `App()` and `useScoring()`) actually correct?**
+  _`useAnnotationState()` has 3 INFERRED edges - model-reasoned connections that need verification._

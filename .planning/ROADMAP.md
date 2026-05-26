@@ -88,7 +88,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Admin can download individual candidate reports and an overall summary report (PDF or CSV)
   5. The reviewer screen is unreachable without the correct passcode; entering an incorrect passcode shows an error and does not reveal any candidate data
   6. Tab-switch and focus-loss events during the test increment a violation counter that persists across all 10 scenarios and is included in the GAS submission payload
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 05-01-PLAN.md — Routing setup: react-router-dom replaces screen-state, 3 routes defined
+- [ ] 05-02-PLAN.md — Admin panel: passcode auth, candidate list, detail drill-down
+- [ ] 05-03-PLAN.md — Proctoring integration: wire violations into candidate flow + submission
+- [ ] 05-04-PLAN.md — Report downloads: PDF (@react-pdf/renderer) + CSV client-side export
 **UI hint**: yes
 
 ### Phase 6: QA & Polish

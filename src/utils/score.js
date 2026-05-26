@@ -43,8 +43,10 @@ export function scoreRound(scenario, answers) {
     const matchedRequired = requiredSignals.filter(r => ansSignals.includes(r)).length;
     if (matchedRequired === requiredSignals.length) {
       signalPoints = 1.0;
-    } else if (partialSignals.length > 0 && partialSignals.some(p => ansSignals.includes(p))) {
-      signalPoints = 0.5;
+    } else if (matchedRequired > 0) {
+      const ratio = matchedRequired / requiredSignals.length;
+      signalPoints = Math.round(ratio * 4) / 4;
+      signalPoints = Math.max(0.25, Math.min(0.75, signalPoints));
     }
   }
 
@@ -82,5 +84,40 @@ export function calculateOverallResults(totalPoints, maxPoints = 30) {
     displayScore,
     band,
     rawPercentage
+  };
+}
+
+/**
+ * Calculates accuracy metrics across all scenarios.
+ *
+ * @param {Array} scenarios - Scenario definitions
+ * @param {Array} answersList - Candidate answers per scenario
+ * @param {Array} scores - Score records per scenario
+ * @returns {{ sevCorrect: number, actCorrect: number, sigPoints: number, severityAcc: number, signalAcc: number, actionAcc: number }}
+ */
+export function calculateAccuracy(scenarios, answersList, scores) {
+  let sevCorrect = 0;
+  let actCorrect = 0;
+  let sigPoints = 0;
+
+  scenarios.forEach((sc, idx) => {
+    const ans = answersList[idx];
+    if (ans) {
+      if (sc.scoring.severity.correct.includes(ans.severity)) sevCorrect++;
+      if (sc.scoring.action.correct.includes(ans.action)) actCorrect++;
+    }
+    if (scores[idx]) {
+      sigPoints += scores[idx].signalPoints || 0;
+    }
+  });
+
+  const total = scenarios.length;
+  return {
+    sevCorrect,
+    actCorrect,
+    sigPoints,
+    severityAcc: Math.round((sevCorrect / total) * 100),
+    signalAcc: Math.round((sigPoints / total) * 100),
+    actionAcc: Math.round((actCorrect / total) * 100),
   };
 }

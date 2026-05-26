@@ -49,17 +49,17 @@ describe('scoreRound', () => {
     expect(result.points).toBe(2.0);
   });
 
-  it('awards partial credit (0.5) for signals when at least one partial signal matches', () => {
+  it('awards proportional partial credit for signals based on required match ratio', () => {
     const answers = {
       severity: 'high', // correct
-      signals: ['urgency'], // only 1 required, but matches partial
+      signals: ['urgency'], // only 1 of 3 required matched
       action: 'remove' // correct
     };
     const result = scoreRound(mockScenario1, answers);
     expect(result.severityPoints).toBe(1.0);
-    expect(result.signalPoints).toBe(0.5);
+    expect(result.signalPoints).toBe(0.25);
     expect(result.actionPoints).toBe(1.0);
-    expect(result.points).toBe(2.5);
+    expect(result.points).toBe(2.25);
   });
 
   it('awards zero points for fields that do not match correct or partial keys', () => {

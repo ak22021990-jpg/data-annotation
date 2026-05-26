@@ -32,7 +32,7 @@ console.log('Criterion 1: Vite dev server with base: \'/annotation/\'')
 try {
   const viteConfig = readFileSync(resolve(__dirname, 'vite.config.js'), 'utf8')
   check('vite.config.js exists', true)
-  check('base: \'/annotation/\' is set', viteConfig.includes("'/annotation/'"))
+  check('base: \'/data-annotation/\' is set', viteConfig.includes("'/data-annotation/'"))
 } catch (e) {
   check('vite.config.js exists', false, e.message)
 }

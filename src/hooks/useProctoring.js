@@ -17,7 +17,6 @@ export function useProctoring({ active = false } = {}) {
 
   useEffect(() => {
     if (!active) {
-      setSwitchedAway(false);
       return;
     }
 

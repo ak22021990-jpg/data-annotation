@@ -96,7 +96,7 @@ Unsubscribe | appoffers-weekly.com`,
     email: {
       from: 'applesupport-care@gmail.com',
       replyTo: 'applesupport-care@gmail.com',
-      to: 'helen.morris72@icloud.com',
+      to: 'helen.morris54@icloud.com',
       subject: 'URGENT: Your Mac has been hacked — call us now',
       body: `Dear Helen,
 

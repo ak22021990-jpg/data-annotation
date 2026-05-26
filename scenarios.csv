@@ -1,0 +1,91 @@
+id,from,replyTo,to,subject,body,context,correct_severity,correct_signals,correct_action
+1,apple-security@secure-appleid-verify.net,no-reply@appleid-verify.net,user@icloud.com,Your Apple ID has been locked — verify immediately,"Dear Customer,
+
+Your Apple ID was suspended due to suspicious sign-in activity. You must verify your identity within 24 hours or your account will be permanently deleted.
+
+[Verify My Apple ID] → http://appleid.secure-appleid-verify.net/unlock
+
+Apple Support",,high,"urgency, spoofed-sender, fake-domain",remove
+2,no-reply@apple.com,no-reply@apple.com,dev@appstudio.io,Your app 'PhotoEdit Pro' has been removed from the App Store,"Hello,
+
+Your app PhotoEdit Pro (Bundle ID: com.appstudio.photoedit) has been removed from the App Store for violating Guideline 4.3 (Spam).
+
+If you believe this is an error, you may appeal within 14 days via App Store Connect.
+
+Apple Developer Relations",,high,"spoofed-sender, impersonation",remove
+3,deals@appoffers-weekly.com,deals@appoffers-weekly.com,user@icloud.com,Top 10 free apps this week — curated for iPhone users,"Hi iPhone fan,
+
+Here are this week's top free App Store picks, curated by our editors.
+
+1. Focusplan Pro — now free
+2. SleepCast — limited free tier
+3. AirScan HD — free this weekend
+
+[See all 10 picks] → https://appoffers-weekly.com/free-apps
+
+Unsubscribe | appoffers-weekly.com",The user says they never signed up for this list. The appoffers-weekly.com domain is a legitimate third-party app review site with no malware history. Links go to real App Store listings.,low,unsolicited,filter
+4,applesupport-care@gmail.com,applesupport-care@gmail.com,helen.morris72@icloud.com,URGENT: Your Mac has been hacked — call us now,"Dear Helen,
+
+Our security systems have detected that your Mac computer has been infected with a dangerous virus. Your personal photos, bank details and passwords are at risk.
+
+You must call our Apple Certified Support line immediately:
+
++1-888-234-9021
+
+Do not turn off your computer. Our technician will remotely fix the issue for a one-time fee of $299.
+
+Apple Care Security Division",The reporter is 71 years old. She called the number and was connected to someone who asked for remote access to her Mac before she hung up.,critical,"urgency, impersonation, vulnerable-target, financial-harm",remove
+5,newsletter@9to5mac.com,newsletter@9to5mac.com,user@icloud.com,iPhone 16 review roundup + iOS 18 tips,"Good morning,
+
+This week: our full iPhone 16 Pro review, hidden iOS 18 features you might have missed, and the best Apple Watch bands under $50.
+
+[Read today's issue] → https://9to5mac.com/newsletter/may22
+
+— The 9to5Mac Team
+
+Unsubscribe · Manage preferences",The user says they do not recall subscribing but the 9to5Mac newsletter is a well-known legitimate Apple news publication. The email passes SPF and DKIM. There is a functioning unsubscribe link.,low,unsolicited,no-action
+6,billing@apple.com,billing@apple.com,user@icloud.com,Your receipt for GarageBand — $4.99,"Hi,
+
+Thank you for your purchase.
+
+GarageBand — $4.99
+Date: May 22, 2024
+Order ID: MX7R-28FQ
+
+If you didn't make this purchase, visit reportaproblem.apple.com
+
+Apple",The reporter says they did not purchase GarageBand and are worried their account has been compromised. The sender domain is apple.com. SPF and DKIM both pass. The link goes to apple.com/reportaproblem — a real Apple page.,low,,no-action
+7,no-reply@appleid.apple.com,support@apple-id-helpdesk.io,user@icloud.com,Sign-in attempt from new device,"Your Apple ID was used to sign in to iCloud on a Windows PC in Moscow, Russia.
+
+If this was you, you can ignore this email.
+
+If this was not you — your Apple ID password has been compromised. Reset it now:
+
+[Reset My Password] → http://apple-id-helpdesk.io/reset",,high,"spoofed-sender, fake-domain, urgency, impersonation",remove
+8,promo@apple.com,promo@apple.com,user@icloud.com,Get 3 months of Apple TV+ free with your new iPhone,"Hi,
+
+As an Apple customer, you're eligible for 3 months of Apple TV+ free when you activate a new iPhone 15 or later.
+
+Offer expires June 30. Terms apply.
+
+[Claim your offer] → https://tv.apple.com/offer/iphone
+
+Apple",The reporter says this looks like spam and they didn't ask for it. SPF and DKIM pass. The link goes to a real Apple TV subdomain. Apple runs legitimate promotional emails to registered customers.,low,unsolicited,no-action
+9,itunes-noreply@apple.com,itunes-noreply@apple.com,user@icloud.com,Your subscription renews tomorrow — $99.99,"Dear User,
+
+Your Apple One Premier subscription will automatically renew tomorrow for $99.99/year.
+
+If you wish to cancel, you must act before midnight tonight:
+
+[Cancel Subscription] → http://apple-subscriptions-manage.com/cancel
+
+Apple Billing Team",The reporter has Apple One but the standard price is $37.95/month. SPF fails. DKIM fails. The link does not go to apple.com.,high,"spoofed-sender, fake-domain, urgency, impersonation, auth-fail",remove
+10,family-sharing@apple.com,family-sharing@apple.com,parent@icloud.com,Screen Time request from Liam,"Hi,
+
+Liam is asking for more Screen Time. Liam wants an additional 2 hours of access today.
+
+[Approve] [Decline]
+
+If you did not set up Family Sharing with this child, contact Apple Support.
+
+Apple",The reporter says they have no child named Liam and have never set up Family Sharing. SPF and DKIM both pass. The approve/decline buttons link to apple.com/family.,low,,no-action

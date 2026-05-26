@@ -19,6 +19,8 @@ export function useAnnotationState(scenarios, options = {}) {
   const [scenarioIndex, setScenarioIndex] = useState(0);
   const [answersList, setAnswersList] = useState(() => Array(scenarios.length).fill(null));
   const [proctorActive, setProctorActive] = useState(false);
+  const [testStartTime, setTestStartTime] = useState(null);
+  const [_elapsedSeconds, setElapsedSeconds] = useState(0);
 
   const [currentSeverity, setCurrentSeverity] = useState(null);
   const [currentSignals, setCurrentSignals] = useState([]);
@@ -40,6 +42,7 @@ export function useAnnotationState(scenarios, options = {}) {
     setCurrentAction(null);
     setScreen(SCREENS.ANNOTATE);
     setProctorActive(true);
+    setTestStartTime(Date.now());
   }, []);
 
   const submitAnnotation = useCallback((autoSubmittedAnswers = null) => {
@@ -71,6 +74,8 @@ export function useAnnotationState(scenarios, options = {}) {
       setScreen(SCREENS.ANNOTATE);
     } else {
       setProctorActive(false);
+      const elapsed = testStartTime ? Math.round((Date.now() - testStartTime) / 1000) : 0;
+      setElapsedSeconds(elapsed);
       setScreen(SCREENS.RESULTS);
       if (onFinished) {
         onFinished({
@@ -81,11 +86,12 @@ export function useAnnotationState(scenarios, options = {}) {
           displayScore: scoring.displayScore,
           band: scoring.band,
           violations,
-          scenarios
+          scenarios,
+          elapsedSeconds: elapsed,
         });
       }
     }
-  }, [scenarioIndex, scenarios, candidate, answersList, scoring, onFinished, violations]);
+  }, [scenarioIndex, scenarios, candidate, answersList, scoring, onFinished, violations, testStartTime]);
 
   const toggleSignal = useCallback((signalId) => {
     setCurrentSignals(prev => {
@@ -111,6 +117,8 @@ export function useAnnotationState(scenarios, options = {}) {
     setCurrentSignals([]);
     setCurrentAction(null);
     setProctorActive(false);
+    setTestStartTime(null);
+    setElapsedSeconds(0);
     scoring.resetScores();
     resetProctoring();
   }, [scenarios.length, scoring, resetProctoring]);
