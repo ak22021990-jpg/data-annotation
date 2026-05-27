@@ -12,11 +12,21 @@ export const SCREENS = {
   REVIEWER: 'REVIEWER'
 };
 
+function shuffleArray(arr) {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 export function useAnnotationState(scenarios, options = {}) {
   const { onFinished } = options;
   const [screen, setScreen] = useState(SCREENS.REGISTER);
   const [candidate, setCandidate] = useState({ name: '', email: '' });
   const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [shuffledScenarios, setShuffledScenarios] = useState(() => shuffleArray(scenarios));
   const [answersList, setAnswersList] = useState(() => Array(scenarios.length).fill(null));
   const [proctorActive, setProctorActive] = useState(false);
   const [testStartTime, setTestStartTime] = useState(null);
@@ -36,6 +46,7 @@ export function useAnnotationState(scenarios, options = {}) {
   }, []);
 
   const startTest = useCallback(() => {
+    setShuffledScenarios(shuffleArray(scenarios));
     setScenarioIndex(0);
     setCurrentSeverity(null);
     setCurrentSignals([]);
@@ -43,7 +54,7 @@ export function useAnnotationState(scenarios, options = {}) {
     setScreen(SCREENS.ANNOTATE);
     setProctorActive(true);
     setTestStartTime(Date.now());
-  }, []);
+  }, [scenarios]);
 
   const submitAnnotation = useCallback((autoSubmittedAnswers = null) => {
     const severity = autoSubmittedAnswers ? autoSubmittedAnswers.severity : currentSeverity;
@@ -51,7 +62,7 @@ export function useAnnotationState(scenarios, options = {}) {
     const action = autoSubmittedAnswers ? autoSubmittedAnswers.action : currentAction;
 
     const answers = { severity, signals, action };
-    const record = scoring.scoreScenario(scenarioIndex, scenarios[scenarioIndex], answers);
+    const record = scoring.scoreScenario(scenarioIndex, shuffledScenarios[scenarioIndex], answers);
 
     let updatedAnswersList;
     setAnswersList(prev => {
@@ -66,7 +77,7 @@ export function useAnnotationState(scenarios, options = {}) {
   }, [scenarioIndex, currentSeverity, currentSignals, currentAction, scenarios, scoring]);
 
   const nextScenario = useCallback(() => {
-    if (scenarioIndex < scenarios.length - 1) {
+    if (scenarioIndex < shuffledScenarios.length - 1) {
       setScenarioIndex(prev => prev + 1);
       setCurrentSeverity(null);
       setCurrentSignals([]);
@@ -86,12 +97,12 @@ export function useAnnotationState(scenarios, options = {}) {
           displayScore: scoring.displayScore,
           band: scoring.band,
           violations,
-          scenarios,
+          scenarios: shuffledScenarios,
           elapsedSeconds: elapsed,
         });
       }
     }
-  }, [scenarioIndex, scenarios, candidate, answersList, scoring, onFinished, violations, testStartTime]);
+  }, [scenarioIndex, shuffledScenarios, candidate, answersList, scoring, onFinished, violations, testStartTime]);
 
   const toggleSignal = useCallback((signalId) => {
     setCurrentSignals(prev => {
@@ -112,6 +123,7 @@ export function useAnnotationState(scenarios, options = {}) {
     setScreen(SCREENS.REGISTER);
     setCandidate({ name: '', email: '' });
     setScenarioIndex(0);
+    setShuffledScenarios(shuffleArray(scenarios));
     setAnswersList(Array(scenarios.length).fill(null));
     setCurrentSeverity(null);
     setCurrentSignals([]);
@@ -121,13 +133,14 @@ export function useAnnotationState(scenarios, options = {}) {
     setElapsedSeconds(0);
     scoring.resetScores();
     resetProctoring();
-  }, [scenarios.length, scoring, resetProctoring]);
+  }, [scenarios, scoring, resetProctoring]);
 
   return {
     screen,
     setScreen,
     candidate,
     scenarioIndex,
+    shuffledScenarios,
     currentSeverity,
     currentSignals,
     currentAction,

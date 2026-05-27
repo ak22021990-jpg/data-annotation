@@ -104,6 +104,7 @@ function App() {
     setScreen,
     candidate,
     scenarioIndex,
+    shuffledScenarios,
     currentSeverity,
     currentSignals,
     currentAction,
@@ -122,7 +123,7 @@ function App() {
     band,
   } = state;
 
-  const currentScenario = scenarios[scenarioIndex];
+  const currentScenario = shuffledScenarios[scenarioIndex];
   const submitDisabled = !currentSeverity || !currentAction;
 
   const handleTimerExpire = () => { submitAnnotation(); };
@@ -140,7 +141,7 @@ function App() {
             scenario={currentScenario}
             scoreRecord={scores[scenarioIndex]}
             onNext={nextScenario}
-            isLast={scenarioIndex === scenarios.length - 1}
+            isLast={scenarioIndex === shuffledScenarios.length - 1}
           />
         )}
         {screen === SCREENS.RESULTS && (
@@ -151,7 +152,7 @@ function App() {
             totalPoints={totalPoints}
             displayScore={displayScore}
             band={band}
-            scenarios={scenarios}
+            scenarios={shuffledScenarios}
             onRetake={resetAll}
           />
         )}
@@ -215,7 +216,7 @@ function App() {
         {/* Header bar */}
         <AnnotateHeader
           scenarioIndex={scenarioIndex}
-          total={scenarios.length}
+          total={shuffledScenarios.length}
           durationSeconds={120}
           onExpire={handleTimerExpire}
         />
@@ -251,7 +252,7 @@ function App() {
                 email={currentScenario.email}
                 context={currentScenario.context}
                 scenarioIndex={scenarioIndex}
-                totalScenarios={scenarios.length}
+                totalScenarios={shuffledScenarios.length}
                 scenarioTitle={currentScenario.title}
               />
             </div>

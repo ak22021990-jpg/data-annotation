@@ -4,7 +4,7 @@
    * Handles:
    *   POST action:"register"    — saves name + email when assessment starts
    *   POST action:"submit"      — updates row with scores + writes per-scenario raw data
-   *   POST action:"submitFinal" — writes final scores, sends email with CSV to reviewers
+   *   POST action:"submitFinal" — writes final scores
    *   GET  ?checkEmail=...      — checks if an email has already been used
    *   GET  ?action=getResults&passcode=... — reviewer screen data (passcode-gated)
    *   GET  ?action=getLeaderboard         — public top-50 leaderboard
@@ -17,18 +17,9 @@
    *   5. Deploy > Manage deployments > New version > Deploy.
    *   6. Copy the /exec URL into annotation project's .env as VITE_GAS_URL.
    *
-   * Email recipients for results notification:
-   *   Edit the REVIEWER_EMAILS array below.
    */
 
   var SPREADSHEET_ID = '1J1Y2WFySEnFsTTq75JqyMGE9eJZBcaXl0-Pty7ZFm9Y';
-
-  var REVIEWER_EMAILS = [
-    'pavan.machala@sutherlandglobal.com',
-    'emilouvienna.nadela@sutherlandglobal.com',
-    'Anoop.krishnan1@sutherlandglobal.com',
-    'Sandhya.jobbin@sutherlandglobal.com',
-  ];
 
   function getSpreadsheet() {
     return SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -155,7 +146,7 @@
         return jsonResponse({ ok: true });
       }
 
-      // ── Submit Final (scores + email notification to reviewers) ──
+      // ── Submit Final ──
       if (action === 'submitFinal') {
         var sheets = ensureSheets(ss);
         var row = findRowByEmail(sheets.summary, payload.email || '');
@@ -197,68 +188,6 @@
             r.actionPoints || 0,
             r.totalPoints || 0
           ]);
-        }
-
-        // Build CSV for email attachment
-        var csvLines = [
-          'Scenario ID,Title,Selected Severity,Correct Severity,Severity Pts,Selected Signals,Required Signals,Signal Pts,Selected Action,Correct Action,Action Pts,Total Pts'
-        ];
-        for (var j = 0; j < perScenario.length; j++) {
-          var s = perScenario[j];
-          csvLines.push([
-            csvEscape(s.scenarioId || ''),
-            csvEscape(s.scenarioTitle || ''),
-            csvEscape(s.selectedSeverity || ''),
-            csvEscape(s.correctSeverity || ''),
-            s.severityPoints || 0,
-            csvEscape(s.selectedSignals || ''),
-            csvEscape(s.requiredSignals || ''),
-            s.signalPoints || 0,
-            csvEscape(s.selectedAction || ''),
-            csvEscape(s.correctAction || ''),
-            s.actionPoints || 0,
-            s.totalPoints || 0
-          ].join(','));
-        }
-        var csvBlob = Utilities.newBlob(
-          csvLines.join('\r\n'),
-          'text/csv',
-          (payload.name || 'candidate').replace(/[^a-z0-9]/gi, '_') + '_annotation_results.csv'
-        );
-
-        // Build email body
-        var bodyLines = [
-          'Email Abuse Annotation Assessment Results',
-          '',
-          'Applicant:   ' + (payload.name || ''),
-          'Email:       ' + (payload.email || ''),
-          'Submitted:   ' + ts,
-          '',
-          'Overall Score:     ' + (payload.displayScore || 0) + '%',
-          'Band:              ' + (payload.band || ''),
-          'Total Points:      ' + (payload.totalPoints || 0) + ' / 30',
-          '',
-          'Category Accuracy:',
-          '  Severity:        ' + (payload.severityAcc || 0) + '%',
-          '  Abuse Signals:   ' + (payload.signalAcc || 0) + '%',
-          '  Action:          ' + (payload.actionAcc || 0) + '%',
-          '',
-          'Proctoring Violations: ' + (payload.violations || 0),
-          '',
-          'Per-scenario breakdown is attached as a CSV.',
-        ];
-
-        var subject = 'Email Abuse Annotation - "' + (payload.name || '') + '" - ' + (payload.displayScore || 0) + '%';
-
-        try {
-          MailApp.sendEmail({
-            to: REVIEWER_EMAILS.join(','),
-            subject: subject,
-            body: bodyLines.join('\n'),
-            attachments: [csvBlob],
-          });
-        } catch (mailErr) {
-          Logger.log('MailApp error: ' + mailErr.message);
         }
 
         return jsonResponse({ ok: true });
@@ -402,10 +331,3 @@
     return val;
   }
 
-  function csvEscape(val) {
-    var s = String(val == null ? '' : val);
-    if (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1) {
-      return '"' + s.replace(/"/g, '""') + '"';
-    }
-    return s;
-  }

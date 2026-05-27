@@ -99,7 +99,7 @@ function buildPerScenarioData(scenarios, answersList, scores) {
 }
 
 /**
- * Submits the completed test results and triggers email notification to reviewers.
+ * Submits the completed test results.
  *
  * @param {Object} params
  * @param {Object} params.candidate - { name, email }
