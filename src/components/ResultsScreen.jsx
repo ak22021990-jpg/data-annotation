@@ -1,6 +1,5 @@
 import { checkBadges } from '../config/badges.js';
 import BadgeDisplay from './BadgeDisplay.jsx';
-import LeaderboardScreen from './LeaderboardScreen.jsx';
 import { glass } from '../styles/tokens.js';
 import { calculateAccuracy } from '../utils/score.js';
 
@@ -21,7 +20,7 @@ function titleTone(score) {
 }
 
 /**
- * ResultsScreen - Full scorecard, badge, and leaderboard view.
+ * ResultsScreen - Full scorecard, badge, and statistics view.
  */
 export default function ResultsScreen({
   candidate,
@@ -264,11 +263,6 @@ export default function ResultsScreen({
               </tbody>
             </table>
           </div>
-        </div>
-
-        {/* Leaderboard section */}
-        <div style={{ ...surface, borderRadius: 28, padding: 24 }}>
-          <LeaderboardScreen />
         </div>
 
 
