@@ -108,7 +108,7 @@ export default function TutorialScreen({ onStart, candidateName }) {
           border: '1px solid rgba(255,59,48,0.18)', textAlign: 'center',
           fontSize: 13, fontWeight: 600, color: 'rgba(255,59,48,0.85)', letterSpacing: '-0.01em',
         }}>
-          Do not move out of the screen, once the game is started as proctoring is enabled.
+          Do not move out of the screen, once the test is started as proctoring is enabled.
         </div>
 
         <div style={{ display: 'grid' }}>
