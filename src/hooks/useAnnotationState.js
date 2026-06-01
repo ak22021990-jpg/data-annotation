@@ -8,6 +8,7 @@ export const SCREENS = {
   TUTORIAL: 'TUTORIAL',
   ANNOTATE: 'ANNOTATE',
   FEEDBACK: 'FEEDBACK',
+  SUBMITTING: 'SUBMITTING',
   RESULTS: 'RESULTS',
   REVIEWER: 'REVIEWER'
 };
@@ -76,7 +77,7 @@ export function useAnnotationState(scenarios, options = {}) {
     return { answers, record, updatedAnswersList };
   }, [scenarioIndex, currentSeverity, currentSignals, currentAction, scenarios, scoring]);
 
-  const nextScenario = useCallback(() => {
+  const nextScenario = useCallback(async () => {
     if (scenarioIndex < shuffledScenarios.length - 1) {
       setScenarioIndex(prev => prev + 1);
       setCurrentSeverity(null);
@@ -87,20 +88,29 @@ export function useAnnotationState(scenarios, options = {}) {
       setProctorActive(false);
       const elapsed = testStartTime ? Math.round((Date.now() - testStartTime) / 1000) : 0;
       setElapsedSeconds(elapsed);
-      setScreen(SCREENS.RESULTS);
+      setScreen(SCREENS.SUBMITTING);
       if (onFinished) {
-        onFinished({
-          candidate,
-          answers: answersList,
-          scores: scoring.scores,
-          totalPoints: scoring.totalPoints,
-          displayScore: scoring.displayScore,
-          band: scoring.band,
-          violations,
-          scenarios: shuffledScenarios,
-          elapsedSeconds: elapsed,
-        });
+        const timeout = new Promise(resolve => setTimeout(resolve, 15000));
+        try {
+          await Promise.race([
+            onFinished({
+              candidate,
+              answers: answersList,
+              scores: scoring.scores,
+              totalPoints: scoring.totalPoints,
+              displayScore: scoring.displayScore,
+              band: scoring.band,
+              violations,
+              scenarios: shuffledScenarios,
+              elapsedSeconds: elapsed,
+            }),
+            timeout,
+          ]);
+        } catch (e) {
+          console.error('Submission error:', e);
+        }
       }
+      setScreen(SCREENS.RESULTS);
     }
   }, [scenarioIndex, shuffledScenarios, candidate, answersList, scoring, onFinished, violations, testStartTime]);
 

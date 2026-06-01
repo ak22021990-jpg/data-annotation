@@ -6,9 +6,14 @@ function safeguardSubmission(payload) {
     const key = `abuse_test_submission_${payload.email}`;
     localStorage.setItem(key, JSON.stringify(payload));
     localStorage.setItem('abuse_test_last_email', payload.email);
+    localStorage.setItem('abuse_test_pending', 'true');
   } catch (e) {
     console.error('Failed to write to localStorage safeguard:', e);
   }
+}
+
+function clearPending() {
+  try { localStorage.removeItem('abuse_test_pending'); } catch {}
 }
 
 function getLocalLeaderboard() {
@@ -146,6 +151,7 @@ export async function submitResults({ candidate, answers, scores, totalPoints, d
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'submitFinal', ...payload }),
       });
+      clearPending();
       return { success: true, backend: 'GAS' };
     } catch (error) {
       console.error('GAS submitFinal failed, using local fallback:', error);
@@ -171,6 +177,52 @@ export async function fetchLeaderboard() {
     }
   }
   return getLocalLeaderboard();
+}
+
+/**
+ * Last-resort submission via sendBeacon — survives tab closure.
+ * Reads the payload from localStorage (already saved by safeguardSubmission).
+ */
+export function submitViaBeacon() {
+  if (!GAS_URL) return;
+  try {
+    const lastEmail = localStorage.getItem('abuse_test_last_email');
+    if (!lastEmail) return;
+    const raw = localStorage.getItem(`abuse_test_submission_${lastEmail}`);
+    if (!raw) return;
+    const payload = JSON.parse(raw);
+    const blob = new Blob(
+      [JSON.stringify({ action: 'submitFinal', ...payload })],
+      { type: 'application/json' }
+    );
+    navigator.sendBeacon(GAS_URL, blob);
+  } catch {}
+}
+
+/**
+ * On app mount, retries any submission that was interrupted before the
+ * GAS fetch completed (e.g. tab was force-closed).
+ */
+export async function retryPendingSubmission() {
+  if (!GAS_URL) return;
+  if (!localStorage.getItem('abuse_test_pending')) return;
+  const lastEmail = localStorage.getItem('abuse_test_last_email');
+  if (!lastEmail) return;
+  const raw = localStorage.getItem(`abuse_test_submission_${lastEmail}`);
+  if (!raw) return;
+
+  try {
+    const payload = JSON.parse(raw);
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'submitFinal', ...payload }),
+    });
+    clearPending();
+  } catch (e) {
+    console.error('Retry of pending submission failed:', e);
+  }
 }
 
 /**

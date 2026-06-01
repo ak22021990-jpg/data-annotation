@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import scenarios from './data/scenarios.js';
 import { useAnnotationState, SCREENS } from './hooks/useAnnotationState.js';
 import RegisterScreen from './components/RegisterScreen.jsx';
@@ -9,7 +9,7 @@ import FeedbackScreen from './components/FeedbackScreen.jsx';
 import ResultsScreen from './components/ResultsScreen.jsx';
 import ReviewerScreen from './components/ReviewerScreen.jsx';
 import Timer from './components/Timer.jsx';
-import { submitResults } from './utils/api.js';
+import { submitResults, submitViaBeacon, retryPendingSubmission } from './utils/api.js';
 import { surface } from './styles/tokens.js';
 import './App.css';
 
@@ -92,11 +92,23 @@ function AnnotateHeader({ scenarioIndex, total, durationSeconds, onExpire }) {
  * App - Main router for the Email Abuse Annotation Test.
  */
 function App() {
-  const handleFinished = useCallback(({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds }) => {
-    submitResults({
+  const handleFinished = useCallback(async ({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds }) => {
+    return submitResults({
       candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds
     });
   }, []);
+
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      if (localStorage.getItem('abuse_test_pending')) {
+        submitViaBeacon();
+      }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, []);
+
+  useEffect(() => { retryPendingSubmission(); }, []);
 
   const state = useAnnotationState(scenarios, { onFinished: handleFinished });
   const {
@@ -143,6 +155,36 @@ function App() {
             onNext={nextScenario}
             isLast={scenarioIndex === shuffledScenarios.length - 1}
           />
+        )}
+        {screen === SCREENS.SUBMITTING && (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', minHeight: '100dvh',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+          }}>
+            <style>{`@keyframes annotation-spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{
+              ...surface,
+              borderRadius: 24,
+              padding: '48px 40px',
+              textAlign: 'center',
+              maxWidth: 400,
+            }}>
+              <div style={{
+                width: 40, height: 40, margin: '0 auto 20px',
+                border: '3px solid rgba(10,132,255,0.15)',
+                borderTopColor: '#0A84FF',
+                borderRadius: '50%',
+                animation: 'annotation-spin 0.8s linear infinite',
+              }} />
+              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#111827', margin: '0 0 8px' }}>
+                Submitting Your Results
+              </h2>
+              <p style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.5, margin: 0 }}>
+                Please don't close this window.
+              </p>
+            </div>
+          </div>
         )}
         {screen === SCREENS.RESULTS && (
           <ResultsScreen
