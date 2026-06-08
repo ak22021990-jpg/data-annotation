@@ -5,13 +5,13 @@ milestone_name: milestone
 status: completed
 stopped_at: Phase 5 context gathered — 9 decisions captured
 last_updated: "2026-05-25T17:02:56.522Z"
-last_activity: "2026-05-22 — Phase 1 done: scaffold, ESLint banned-terms, taxonomy, scenarios with 7 fixes, all verifications pass"
+last_activity: "2026-06-08 — Phase 2 verified: 46 scoring tests pass; security hardening + SAST CI committed"
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 2
   total_plans: 0
   completed_plans: 0
-  percent: 0
+  percent: 33
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-22)
 
 **Core value:** A candidate can complete a realistic email-abuse annotation test and receive an automatic, defensible score plus a per-scenario breakdown that a reviewer can trust.
-**Current focus:** Phase 1 — Data Foundation
+**Current focus:** Phase 3 — Annotation Round Flow
 
 ## Current Position
 
-Phase: 1 of 6 (Data Foundation) — COMPLETE
+Phase: 2 of 6 (Scoring Engine) — COMPLETE
 Plan: 8 of 8 tasks
 Status: Phase complete
-Last activity: 2026-05-22 — Phase 1 done: scaffold, ESLint banned-terms, taxonomy, scenarios with 7 fixes, all verifications pass
+Last activity: 2026-06-08 — Phase 2 verified: 46 scoring tests pass; security hardening + SAST CI committed
 
-Progress: [▓▓░░░░░░░░] 17%
+Progress: [▓▓▓▓░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -63,6 +63,7 @@ Recent decisions affecting current work:
 - Roadmap: Fix all 7 scenario rubric inconsistencies in Phase 1 before scoring code is written (S1 auth-fail partial, S2 spoofed-sender evidence, S4 financial-harm required, S5/S8 empty severity partial, S7 urgency/impersonation partial, S9 auth-fail critical)
 - Roadmap: Scoring engine (Phase 2) is a standalone pure-function phase — verifiable in Node before any UI exists
 - Roadmap: Phase 5 (Reviewer) needs GAS LockService concurrent-write research before implementation
+- Phase 2 scoring engine verified 2026-06-08: scoreRound() is pure, 46/46 tests pass; band thresholds 80%/60% confirmed correct per ROADMAP criteria; CWE-312 localStorage fix removed submitViaBeacon relay path — GAS is now the sole durable submission channel
 
 ### Pending Todos
 

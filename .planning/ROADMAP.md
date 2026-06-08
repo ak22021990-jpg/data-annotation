@@ -49,7 +49,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `displayScore` equals `Math.round((totalPoints / 30) * 100)` and band classification uses the raw (unrounded) percentage — a 24/30 candidate lands in Advanced, a 17.9/30 candidate lands in Foundation
   4. The scoring function is pure: identical inputs always produce identical outputs with no network call or external state
   5. Severity, signal, and action point weights are calibrated to differentiate candidate skill levels — high performers score in Advanced, marginal candidates land in Proficient or Foundation
-**Plans**: TBD
+**Plans**: 1 plan (implemented inline with Phase 1 scaffold, verified 2026-06-08)
+Plans:
+- [x] score.js + useScoring.js — Pure scoring engine, calibrated weights, band thresholds
 
 ### Phase 3: Annotation Round Flow
 **Goal**: A candidate can work through all 10 annotation scenarios in sequence — reading each email, filling the form, watching the timer, submitting, and reading per-scenario feedback — within the React application
@@ -114,7 +116,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 1/1 | Done | 2026-05-22 |
-| 2. Scoring Engine | 0/TBD | Not started | - |
+| 2. Scoring Engine | 1/1 | Done | 2026-06-08 |
 | 3. Annotation Round Flow | 0/TBD | Not started | - |
 | 4. Results, Efficiency Stats & Design | 0/TBD | Not started | - |
 | 5. Admin Panel, Reviewer & Integrity | 0/TBD | Not started | - |
