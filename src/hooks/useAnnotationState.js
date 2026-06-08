@@ -16,7 +16,9 @@ export const SCREENS = {
 function shuffleArray(arr) {
   const shuffled = [...arr];
   for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const rand = new Uint32Array(1);
+    crypto.getRandomValues(rand);
+    const j = Math.floor((rand[0] / 0x100000000) * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
@@ -107,7 +109,7 @@ export function useAnnotationState(scenarios, options = {}) {
             timeout,
           ]);
         } catch (e) {
-          console.error('Submission error:', e);
+          console.error('Submission error');
         }
       }
       setScreen(SCREENS.RESULTS);

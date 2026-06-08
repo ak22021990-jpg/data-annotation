@@ -33,7 +33,7 @@ export function useReviewer() {
       setIsAuthenticated(true);
       return true;
     } catch (err) {
-      console.error('Authentication failed:', err);
+      console.error('Authentication failed');
       const msg = err.message || '';
       if (msg.toLowerCase().includes('passcode') || msg.toLowerCase().includes('authentication')) {
         setError('Invalid passcode. Access denied.');
@@ -57,7 +57,7 @@ export function useReviewer() {
       const data = await fetchReviewerResults(activePasscode);
       setCandidates(data || []);
     } catch (err) {
-      console.error('Fetch candidates error:', err);
+      console.error('Fetch candidates error');
       // Surface the specific error from the backend when available
       const msg = err.message || 'Failed to fetch candidate results.';
       setError(msg);

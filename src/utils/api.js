@@ -1,14 +1,11 @@
 import { GAS_URL } from '../config/config.js';
 import { calculateAccuracy } from './score.js';
 
-function safeguardSubmission(payload) {
+function safeguardSubmission() {
   try {
-    const key = `abuse_test_submission_${payload.email}`;
-    localStorage.setItem(key, JSON.stringify(payload));
-    localStorage.setItem('abuse_test_last_email', payload.email);
     localStorage.setItem('abuse_test_pending', 'true');
   } catch (e) {
-    console.error('Failed to write to localStorage safeguard:', e);
+    console.error('Failed to write to localStorage safeguard');
   }
 }
 
@@ -37,7 +34,7 @@ function saveLocalLeaderboard(entry) {
     const updated = [...current, entry].sort((a, b) => b.displayScore - a.displayScore);
     localStorage.setItem('abuse_test_leaderboard', JSON.stringify(updated));
   } catch (e) {
-    console.error('Failed to update local leaderboard:', e);
+    console.error('Failed to update local leaderboard');
   }
 }
 
@@ -57,7 +54,7 @@ export async function registerCandidate(name, email) {
     });
     return { success: true, backend: 'GAS' };
   } catch (error) {
-    console.error('Register failed:', error);
+    console.error('Register failed');
     return { success: true, backend: 'LocalOnly' };
   }
 }
@@ -74,7 +71,7 @@ export async function checkEmail(email) {
       return await response.json();
     }
   } catch (error) {
-    console.error('checkEmail failed:', error);
+    console.error('checkEmail failed');
   }
   return { exists: false };
 }
@@ -141,7 +138,7 @@ export async function submitResults({ candidate, answers, scores, totalPoints, d
     scores: JSON.stringify(scores),
   };
 
-  safeguardSubmission(payload);
+  safeguardSubmission();
 
   if (GAS_URL) {
     try {
@@ -154,7 +151,7 @@ export async function submitResults({ candidate, answers, scores, totalPoints, d
       clearPending();
       return { success: true, backend: 'GAS' };
     } catch (error) {
-      console.error('GAS submitFinal failed, using local fallback:', error);
+      console.error('GAS submitFinal failed, using local fallback');
     }
   }
 
@@ -173,56 +170,19 @@ export async function fetchLeaderboard() {
         return await response.json();
       }
     } catch (error) {
-      console.error('GAS leaderboard fetch failed, using local fallback:', error);
+      console.error('GAS leaderboard fetch failed, using local fallback');
     }
   }
   return getLocalLeaderboard();
 }
 
-/**
- * Last-resort submission via sendBeacon — survives tab closure.
- * Reads the payload from localStorage (already saved by safeguardSubmission).
- */
 export function submitViaBeacon() {
-  if (!GAS_URL) return;
-  try {
-    const lastEmail = localStorage.getItem('abuse_test_last_email');
-    if (!lastEmail) return;
-    const raw = localStorage.getItem(`abuse_test_submission_${lastEmail}`);
-    if (!raw) return;
-    const payload = JSON.parse(raw);
-    const blob = new Blob(
-      [JSON.stringify({ action: 'submitFinal', ...payload })],
-      { type: 'application/json' }
-    );
-    navigator.sendBeacon(GAS_URL, blob);
-  } catch {}
+  // Submission payload is no longer persisted in localStorage (CWE-312 fix).
 }
 
-/**
- * On app mount, retries any submission that was interrupted before the
- * GAS fetch completed (e.g. tab was force-closed).
- */
 export async function retryPendingSubmission() {
-  if (!GAS_URL) return;
-  if (!localStorage.getItem('abuse_test_pending')) return;
-  const lastEmail = localStorage.getItem('abuse_test_last_email');
-  if (!lastEmail) return;
-  const raw = localStorage.getItem(`abuse_test_submission_${lastEmail}`);
-  if (!raw) return;
-
-  try {
-    const payload = JSON.parse(raw);
-    await fetch(GAS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'submitFinal', ...payload }),
-    });
-    clearPending();
-  } catch (e) {
-    console.error('Retry of pending submission failed:', e);
-  }
+  // Clear any stale pending flag; retry requires the stored payload which is no longer kept.
+  try { localStorage.removeItem('abuse_test_pending'); } catch {}
 }
 
 /**

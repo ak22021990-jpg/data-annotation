@@ -18,7 +18,7 @@ export default function LeaderboardScreen() {
         }
       })
       .catch(err => {
-        console.error('Failed to load leaderboard:', err);
+        console.error('Failed to load leaderboard');
         if (active) setLoading(false);
       });
 

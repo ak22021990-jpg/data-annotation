@@ -267,11 +267,11 @@ try {
 console.log('\n═══════════════════════════════════════════')
 console.log('  Results')
 console.log('═══════════════════════════════════════════')
-for (const r of results) console.log(r)
-console.log(`\n  Total: ${pass} passed, ${fail} failed out of ${pass + fail}`)
+for (const r of results) console.log(r) // bearer:disable javascript_lang-logger_leak
+console.log(`\n  Total: ${pass} passed, ${fail} failed out of ${pass + fail}`) // bearer:disable javascript_lang-logger_leak
 if (fail > 0) {
   console.log('  ⚠️  Phase 1 has unresolved issues!')
 } else {
   console.log('  ✅ Phase 1 fully verified!')
 }
-console.log('')
+console.log('') // bearer:disable javascript_lang-logger_leak
