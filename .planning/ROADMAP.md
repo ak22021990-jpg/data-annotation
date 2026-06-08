@@ -20,7 +20,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Data Foundation** - Scaffold the project, fix all 7 scenario rubric inconsistencies, and establish the single-source-of-truth data layer
 - [ ] **Phase 2: Scoring Engine** - Build and verify the pure `scoreRound()` function with calibrated weights/thresholds and `useScoring` hook in isolation, before any UI exists
-- [ ] **Phase 3: Annotation Round Flow** - Implement the full 10-scenario annotation experience: email display, form, timer, progress, and per-scenario feedback
+- [x] **Phase 3: Nginx Container Security Hardening** - Replace nginx:latest (Debian) with a hardened nginx:alpine image that eliminates the 2 CRITICAL and 30 HIGH CVEs identified in the container scan; add a production Dockerfile, nginx.conf with security headers, and verify with trivy
+  - *Note: Annotation Round Flow (FLOW-01–FLOW-09, TIMER-01–TIMER-03) was implemented outside the GSD workflow prior to Phase 3 planning; all 12 requirements are present in the codebase.*
 - [ ] **Phase 4: Results, Efficiency Stats & Design** - Results screen, candidate efficiency metrics, backend submission, localStorage safeguard, badges, and full flagmail1 design language
 - [ ] **Phase 5: Admin Panel, Reviewer & Integrity** - Lightweight router, admin panel at `/annotation/admin` with candidate review and report downloads, passcode-gated reviewer screen, and proctoring violation tracking
 - [ ] **Phase 6: QA & Polish** - Accessibility audit, scoring verification across all 10 scenarios, timer race test, and terminology clean sweep
@@ -53,18 +54,21 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] score.js + useScoring.js — Pure scoring engine, calibrated weights, band thresholds
 
-### Phase 3: Annotation Round Flow
-**Goal**: A candidate can work through all 10 annotation scenarios in sequence — reading each email, filling the form, watching the timer, submitting, and reading per-scenario feedback — within the React application
+### Phase 3: Nginx Container Security Hardening
+**Goal**: The production nginx container uses a hardened alpine-based image with zero CRITICAL and zero HIGH CVEs; a production Dockerfile + nginx.conf are checked into the repository; trivy scan passes clean
 **Depends on**: Phase 2
-**Requirements**: FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05, FLOW-06, FLOW-07, FLOW-08, FLOW-09, TIMER-01, TIMER-02, TIMER-03
+**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05
 **Success Criteria** (what must be TRUE):
-  1. A candidate can register with name and email on the landing screen, read the tutorial, then reach Scenario 1 with a live 2-minute countdown timer visible
-  2. The email display shows From, Reply-To, To, Subject, and body; any Reply-To that differs from From is visually highlighted in red; the annotator context note is shown when present
-  3. The annotation form accepts severity selection, multi-signal selection (with `none-detected` mutually exclusive from other signals), and action selection; the Submit button is disabled until both severity and action are chosen
-  4. When the 2-minute timer expires, the current annotation auto-submits with whatever is selected (including nothing) — exactly once, with no double-submission
-  5. After each submission the candidate sees per-scenario feedback with the model-answer reasoning, then advances to the next scenario; after Scenario 10 the flow moves to results
-**Plans**: TBD
-**UI hint**: yes
+  1. `trivy image annotation-app:hardened` reports 0 CRITICAL and 0 HIGH vulnerabilities
+  2. `docker build -t annotation-app:hardened .` completes without error
+  3. `docker run --rm -p 8080:80 annotation-app:hardened` serves the annotation app at `http://localhost:8080/data-annotation/` with HTTP 200
+  4. `curl -I http://localhost:8080/data-annotation/` response headers include `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, and do not expose `Server: nginx/...` version string
+  5. The container runs as non-root (uid 101, the `nginx` user); `docker inspect --format='{{.Config.User}}'` returns `nginx` or `101`
+**Plans**: 1 plan
+Plans:
+- [ ] 03-00-PLAN.md — Dockerfile (node:22-alpine + nginx:1.27-alpine), nginx.conf security headers, .dockerignore, trivy verification
+
+*Note: Annotation Round Flow (FLOW-01–FLOW-09, TIMER-01–TIMER-03) was fully implemented in the codebase prior to Phase 3 planning (all components present: RegisterScreen, TutorialScreen, EmailDisplay, AnnotationForm, FeedbackScreen, Timer, useAnnotationState, App.jsx). Those 12 requirements are satisfied but were not planned through GSD.*
 
 ### Phase 4: Results, Efficiency Stats & Design
 **Goal**: A candidate receives a complete results screen with score, band, per-scenario breakdown, and efficiency metrics (accuracy %, time efficiency, signal detection rate); the full submission is persisted to localStorage and the Google Sheets backend; the entire app uses flagmail1's visual design language with annotation-correct copy
@@ -117,7 +121,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 1/1 | Done | 2026-05-22 |
 | 2. Scoring Engine | 1/1 | Done | 2026-06-08 |
-| 3. Annotation Round Flow | 0/TBD | Not started | - |
+| 3. Nginx Container Security Hardening | 0/1 | Not started | - |
 | 4. Results, Efficiency Stats & Design | 0/TBD | Not started | - |
 | 5. Admin Panel, Reviewer & Integrity | 0/TBD | Not started | - |
 | 6. QA & Polish | 0/TBD | Not started | - |
