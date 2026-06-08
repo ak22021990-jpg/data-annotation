@@ -74,6 +74,12 @@ None yet.
 - S2 `spoofed-sender` required vs partial is a content judgment call — needs domain-expert sign-off before scenarios.js is finalised in Phase 1
 - Band thresholds (80% / 60%) inherited from HTML prototype — confirm or recalibrate before Phase 4
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260608-mra | suggest some help | 2026-06-08 | c5bb96c | [260608-mra-suggest-some-help](./quick/260608-mra-suggest-some-help/) |
+
 ## Deferred Items
 
 | Category | Item | Status | Deferred At |
