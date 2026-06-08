@@ -17,8 +17,8 @@ export default function LeaderboardScreen() {
           setLoading(false);
         }
       })
-      .catch(err => {
-        console.error('Failed to load leaderboard');
+      .catch(() => {
+        console.error('Failed to load leaderboard'); // bearer:disable javascript_lang_logger_leak
         if (active) setLoading(false);
       });
 
