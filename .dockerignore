@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.planning
+.github
+coverage
+*.log
+.env*
+.DS_Store
