@@ -39,8 +39,14 @@ export function useAnnotationState(scenarios, options = {}) {
   const [currentSignals, setCurrentSignals] = useState([]);
   const [currentAction, setCurrentAction] = useState(null);
 
+  const [integrityLog, setIntegrityLog] = useState([]);
+
   const scoring = useScoring(scenarios.length);
-  const { violations, switchedAway, reset: resetProctoring } = useProctoring({ active: proctorActive });
+  const { violations: proctoringViolations, switchedAway, reset: resetProctoring } = useProctoring({ active: proctorActive });
+
+  const incrementViolation = useCallback((entry) => {
+    setIntegrityLog(prev => [...prev, entry]);
+  }, []);
 
   const register = useCallback((name, email) => {
     setCandidate({ name, email });
@@ -102,7 +108,8 @@ export function useAnnotationState(scenarios, options = {}) {
               totalPoints: scoring.totalPoints,
               displayScore: scoring.displayScore,
               band: scoring.band,
-              violations,
+              violations: proctoringViolations,
+              integrityLog,
               scenarios: shuffledScenarios,
               elapsedSeconds: elapsed,
             }),
@@ -114,7 +121,7 @@ export function useAnnotationState(scenarios, options = {}) {
       }
       setScreen(SCREENS.RESULTS);
     }
-  }, [scenarioIndex, shuffledScenarios, candidate, answersList, scoring, onFinished, violations, testStartTime]);
+  }, [scenarioIndex, shuffledScenarios, candidate, answersList, scoring, onFinished, proctoringViolations, integrityLog, testStartTime]);
 
   const toggleSignal = useCallback((signalId) => {
     setCurrentSignals(prev => {
@@ -143,6 +150,7 @@ export function useAnnotationState(scenarios, options = {}) {
     setProctorActive(false);
     setTestStartTime(null);
     setElapsedSeconds(0);
+    setIntegrityLog([]);
     scoring.resetScores();
     resetProctoring();
   }, [scenarios, scoring, resetProctoring]);
@@ -165,7 +173,9 @@ export function useAnnotationState(scenarios, options = {}) {
     submitAnnotation,
     nextScenario,
     resetAll,
-    violations,
+    violations: proctoringViolations,
+    integrityLog,
+    incrementViolation,
     switchedAway,
     ...scoring
   };

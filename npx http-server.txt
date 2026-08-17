@@ -1,0 +1,3 @@
+npx http-server
+# OR if you have Python installed:
+python -m http.server 8000

@@ -3,7 +3,7 @@
 
 **Email Abuse Annotation Test**
 
-A browser-based hiring screening test for the Apple Email Abuse Annotation team.
+A browser-based hiring screening test for the Email Abuse Annotation team.
 Candidates work through 10 reported-email scenarios — reading full headers, body, and
 any annotator context note — and fill an annotation form for each: severity, abuse
 signals, and recommended action. The test auto-scores every annotation, shows a
@@ -175,7 +175,7 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **data-annotation** (547 symbols, 709 relationships, 13 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **data-annotation** (551 symbols, 709 relationships, 13 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

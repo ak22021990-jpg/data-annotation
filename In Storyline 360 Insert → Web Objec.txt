@@ -1,0 +1,4 @@
+In Storyline 360: Insert → Web Object → point to the folder containing index_8.html
+Create these variables in Storyline: course_completed (boolean), course_score (number), course_max_score (number)
+The HTML auto-detects Storyline's GetPlayer() and pushes completion data
+Use Storyline triggers on course_completed = true to advance the course

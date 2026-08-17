@@ -35,9 +35,9 @@
         'Timestamp', 'Name', 'Email', 'Status',
         'Total Points', 'Display Score', 'Band',
         'Severity Acc', 'Signal Acc', 'Action Acc',
-        'Proctoring Violations', 'Final Score'
+        'Proctoring Violations', 'Final Score', 'Integrity Log'
       ]);
-      summary.getRange(1, 1, 1, 12).setFontWeight('bold');
+      summary.getRange(1, 1, 1, 13).setFontWeight('bold');
       summary.setFrozenRows(1);
     }
 
@@ -112,11 +112,12 @@
           payload.signalAcc || 0,
           payload.actionAcc || 0,
           payload.violations || 0,
-          payload.finalScore || payload.displayScore || 0
+          payload.finalScore || payload.displayScore || 0,
+          JSON.stringify(payload.integrityLog || [])
         ];
 
         if (row > 0) {
-          sheets.summary.getRange(row, 4, 1, 9).setValues([summaryVals]);
+          sheets.summary.getRange(row, 4, 1, 10).setValues([summaryVals]);
         } else {
           sheets.summary.appendRow([
             ts, payload.name || '', payload.email || ''
@@ -159,11 +160,12 @@
           payload.signalAcc || 0,
           payload.actionAcc || 0,
           payload.violations || 0,
-          payload.finalScore || payload.displayScore || 0
+          payload.finalScore || payload.displayScore || 0,
+          JSON.stringify(payload.integrityLog || [])
         ];
 
         if (row > 0) {
-          sheets.summary.getRange(row, 4, 1, 9).setValues([summaryVals]);
+          sheets.summary.getRange(row, 4, 1, 10).setValues([summaryVals]);
         } else {
           sheets.summary.appendRow([
             ts, payload.name || '', payload.email || ''
@@ -218,6 +220,8 @@
     // Reviewer results (passcode-gated)
     if (params.action === 'getResults') {
       var passcode = params.passcode || '';
+      // Authorised reviewers: Rajani (my.rajani@sutherlandglobal.com)
+      // Passcode stored in Script Properties as REVIEWER_PASSCODE.
       var correct = PropertiesService.getScriptProperties().getProperty('REVIEWER_PASSCODE');
       if (!correct || passcode !== correct) {
         return jsonResponse({ ok: false, error: 'Invalid passcode' });
@@ -229,7 +233,7 @@
         return jsonResponse({ ok: true, submissions: [] });
       }
 
-      var data = sheets.summary.getRange(2, 1, sheets.summary.getLastRow() - 1, 12).getValues();
+      var data = sheets.summary.getRange(2, 1, sheets.summary.getLastRow() - 1, 13).getValues();
       var submissions = [];
       for (var i = 0; i < data.length; i++) {
         var row = data[i];
@@ -245,7 +249,8 @@
           signalAcc: Number(row[8]),
           actionAcc: Number(row[9]),
           violations: Number(row[10]),
-          finalScore: Number(row[11])
+          finalScore: Number(row[11]),
+          integrityLog: JSON.parse(row[12] || '[]')
         });
       }
 

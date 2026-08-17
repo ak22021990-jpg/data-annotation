@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import scenarios from './data/scenarios.js';
 import { useAnnotationState, SCREENS } from './hooks/useAnnotationState.js';
+import { useIntegrityMonitoring } from './hooks/useIntegrityMonitoring.js';
 import RegisterScreen from './components/RegisterScreen.jsx';
 import TutorialScreen from './components/TutorialScreen.jsx';
 import EmailDisplay from './components/EmailDisplay.jsx';
@@ -92,9 +93,9 @@ function AnnotateHeader({ scenarioIndex, total, durationSeconds, onExpire }) {
  * App - Main router for the Email Abuse Annotation Test.
  */
 function App() {
-  const handleFinished = useCallback(async ({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds }) => {
+  const handleFinished = useCallback(async ({ candidate, answers, scores, totalPoints, displayScore, band, violations, integrityLog, scenarios: scenarioList, elapsedSeconds }) => {
     return submitResults({
-      candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios: scenarioList, elapsedSeconds
+      candidate, answers, scores, totalPoints, displayScore, band, violations, integrityLog, scenarios: scenarioList, elapsedSeconds
     });
   }, []);
 
@@ -133,9 +134,24 @@ function App() {
     totalPoints,
     displayScore,
     band,
+    violations,
+    integrityLog,
+    incrementViolation,
   } = state;
 
   const currentScenario = shuffledScenarios[scenarioIndex];
+
+  const silentLog = useCallback((logType, details) => {
+    incrementViolation({ logType, details, timestamp: new Date().toISOString() });
+  }, [incrementViolation]);
+
+  useIntegrityMonitoring(candidate?.email || '', currentScenario?.id, silentLog);
+
+  useEffect(() => {
+    const handleContextMenu = (e) => e.preventDefault();
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => document.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
   const submitDisabled = !currentSeverity || !currentAction;
 
   const handleTimerExpire = () => { submitAnnotation(); };

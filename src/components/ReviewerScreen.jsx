@@ -8,7 +8,7 @@ function candidatesToCSV(candidates) {
   const headers = [
     'Name', 'Email', 'Status', 'Score (%)', 'Total Points',
     'Band', 'Severity Acc (%)', 'Signal Acc (%)', 'Action Acc (%)',
-    'Proctoring Violations', 'Date Submitted'
+    'Proctoring Violations', 'Date Submitted', 'Integrity Events'
   ];
 
   const escapeCSV = (val) => {
@@ -30,7 +30,8 @@ function candidatesToCSV(candidates) {
     c.signalAcc ?? '',
     c.actionAcc ?? '',
     c.violations ?? 0,
-    c.timestamp ? new Date(c.timestamp).toLocaleString() : ''
+    c.timestamp ? new Date(c.timestamp).toLocaleString() : '',
+    escapeCSV(JSON.stringify(c.integrityLog || []))
   ].join(','));
 
   return [headers.join(','), ...rows].join('\r\n');
@@ -129,6 +130,9 @@ export default function ReviewerScreen({ onBack }) {
           <form className="reviewer-login-form" onSubmit={handleSubmitPasscode}>
             <p className="screen-desc">
               Please enter the reviewer passcode to access candidate submissions.
+            </p>
+            <p className="screen-sub" style={{ fontSize: 12, color: 'rgba(17,24,39,0.45)', marginTop: 4 }}>
+              Authorised reviewers: contact your hiring manager for the passcode.
             </p>
             <div className="form-group">
               <label htmlFor="reviewer-passcode">Reviewer Passcode</label>
@@ -276,6 +280,24 @@ export default function ReviewerScreen({ onBack }) {
                                           {cand.violations || 0}
                                         </span>
                                       </div>
+                                      {cand.integrityLog && cand.integrityLog.length > 0 && (
+                                        <div className="raw-data-item" style={{ gridColumn: '1 / -1', marginTop: 8 }}>
+                                          <span className="raw-label">Integrity Event Log</span>
+                                          <div style={{ marginTop: 6 }}>
+                                            {cand.integrityLog.map((evt, eIdx) => (
+                                              <div key={eIdx} style={{
+                                                fontSize: 11, padding: '4px 8px', marginBottom: 3,
+                                                background: 'rgba(255,82,82,0.06)', borderRadius: 6,
+                                                color: '#cc2929', fontFamily: 'monospace'
+                                              }}>
+                                                <strong>{evt.logType}</strong>
+                                                {evt.details?.description ? ` — ${evt.details.description}` : ''}
+                                                {evt.timestamp ? <span style={{ color: 'rgba(17,24,39,0.35)', marginLeft: 8 }}>{new Date(evt.timestamp).toLocaleTimeString()}</span> : null}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
 

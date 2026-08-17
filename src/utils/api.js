@@ -114,7 +114,7 @@ function buildPerScenarioData(scenarios, answersList, scores) {
  * @param {Array} params.scenarios - Scenario definitions (for building per-scenario data)
  * @returns {Promise<Object>}
  */
-export async function submitResults({ candidate, answers, scores, totalPoints, displayScore, band, violations, scenarios, elapsedSeconds }) {
+export async function submitResults({ candidate, answers, scores, totalPoints, displayScore, band, violations, integrityLog = [], scenarios, elapsedSeconds }) {
   const { severityAcc, signalAcc, actionAcc } =
     calculateAccuracy(scenarios, answers, scores);
 
@@ -128,6 +128,7 @@ export async function submitResults({ candidate, answers, scores, totalPoints, d
     displayScore,
     band,
     violations,
+    integrityLog,
     elapsedSeconds,
     severityAcc,
     signalAcc,
